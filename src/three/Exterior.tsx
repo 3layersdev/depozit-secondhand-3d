@@ -8,6 +8,7 @@ import {
 } from './textures'
 import { baleMaps } from './materials'
 import { useSurface } from './pbr'
+import { Wheel, Chassis } from './TruckKit'
 import { TruckDetails, WarehouseDetails, YardDetails } from './details'
 import { range, smoothstep, type ScrollRef } from './sequence'
 
@@ -408,29 +409,6 @@ function RollDoor({
   )
 }
 
-function Wheel({ position, size = 0.52 }: { position: [number, number, number]; size?: number }) {
-  return (
-    <group position={position} rotation={[0, 0, Math.PI / 2]}>
-      <group name="roll">
-        <mesh castShadow>
-          <cylinderGeometry args={[size, size, 0.34, 20]} />
-          <meshStandardMaterial color="#15171a" roughness={0.92} />
-        </mesh>
-        <mesh position={[0, 0.18, 0]}>
-          <cylinderGeometry args={[size * 0.52, size * 0.52, 0.04, 14]} />
-          <meshStandardMaterial color="#8d9298" roughness={0.35} metalness={0.85} />
-        </mesh>
-        {[-1, 1].map((s) => (
-          <mesh key={s} position={[0, s * 0.174, 0]}>
-            <cylinderGeometry args={[size * 0.94, size * 0.94, 0.02, 20]} />
-            <meshStandardMaterial color="#0d0f11" roughness={0.95} />
-          </mesh>
-        ))}
-      </group>
-    </group>
-  )
-}
-
 export function Truck({
   progress,
   doorOpen,
@@ -525,18 +503,8 @@ export function Truck({
 
   return (
     <group ref={root} position={[0, 0, 0]}>
-      {/* chassis */}
-      <mesh position={[0, 0.86, 4.3]} castShadow>
-        <boxGeometry args={[2.2, 0.32, 8.6]} />
-        <meshStandardMaterial
-          map={chassis.map}
-          normalMap={chassis.normalMap}
-          roughnessMap={chassis.roughnessMap}
-          color="#6d7176"
-          roughness={0.75}
-          metalness={0.5}
-        />
-      </mesh>
+      {/* chassis: lonjeroane, traverse, punti, rezervor */}
+      <Chassis />
 
       {/* cargo body shell */}
       <group position={[0, floorY + bodyH / 2, bodyZ]}>
@@ -773,10 +741,10 @@ export function Truck({
       <group ref={wheels}>
         <Wheel position={[-1.16, 0.58, -0.9]} />
         <Wheel position={[1.16, 0.58, -0.9]} />
-        <Wheel position={[-1.16, 0.58, 5.6]} />
-        <Wheel position={[1.16, 0.58, 5.6]} />
-        <Wheel position={[-1.16, 0.58, 6.8]} />
-        <Wheel position={[1.16, 0.58, 6.8]} />
+        <Wheel position={[-1.16, 0.58, 5.6]} dual />
+        <Wheel position={[1.16, 0.58, 5.6]} dual />
+        <Wheel position={[-1.16, 0.58, 6.8]} dual />
+        <Wheel position={[1.16, 0.58, 6.8]} dual />
       </group>
 
       {/* side skirts + tank */}
