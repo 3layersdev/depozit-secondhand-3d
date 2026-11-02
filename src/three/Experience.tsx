@@ -18,7 +18,7 @@ import {
   type ScrollRef,
 } from './sequence'
 
-const DARK = new THREE.Color('#06070a')
+const DARK = new THREE.Color('#241610')
 
 function Rig({ progress }: { progress: ScrollRef }) {
   const { camera, size } = useThree()
@@ -78,8 +78,8 @@ function Rig({ progress }: { progress: ScrollRef }) {
 function Atmosphere({ progress }: { progress: ScrollRef }) {
   const { gl, scene } = useThree()
   const sky = useMemo(() => skyEquirect(), [])
-  const extFog = useMemo(() => new THREE.FogExp2('#c8a184', 0.0052), [])
-  const intFog = useMemo(() => new THREE.FogExp2('#08090c', 0.03), [])
+  const extFog = useMemo(() => new THREE.FogExp2('#e0b489', 0.0048), [])
+  const intFog = useMemo(() => new THREE.FogExp2('#241610', 0.03), [])
 
   useEffect(() => {
     const pmrem = new THREE.PMREMGenerator(gl)
@@ -96,7 +96,7 @@ function Atmosphere({ progress }: { progress: ScrollRef }) {
     const inside = progress.current.p >= SCENE_CUT
     scene.fog = inside ? intFog : extFog
     scene.background = inside ? DARK : sky
-    scene.environmentIntensity = inside ? 0.32 : 0.6
+    scene.environmentIntensity = inside ? 0.34 : 0.7
   })
 
   return null
@@ -116,7 +116,7 @@ function ExteriorLights({ progress }: { progress: ScrollRef }) {
 
   return (
     <group>
-      <hemisphereLight ref={hemi} args={['#e8c39b', '#4a3626', 0.62]} />
+      <hemisphereLight ref={hemi} args={['#f3cfa6', '#5c4430', 0.72]} />
       <directionalLight
         ref={sun}
         position={[34, 26, 22]}
@@ -134,7 +134,7 @@ function ExteriorLights({ progress }: { progress: ScrollRef }) {
       <directionalLight position={[-26, 14, -18]} intensity={0.95} color="#ffb877" />
       {/* warm bounce from the open dock */}
       <pointLight ref={fill} position={[0, 2.4, 10]} intensity={12} distance={26} color="#ffb877" />
-      <ambientLight intensity={0.22} color="#ffd9b0" />
+      <ambientLight intensity={0.34} color="#ffdcb8" />
     </group>
   )
 }
@@ -146,8 +146,8 @@ function Grade() {
   return (
     <EffectComposer enableNormalPass={false} multisampling={0}>
       <Bloom
-        intensity={0.55}
-        luminanceThreshold={0.72}
+        intensity={0.42}
+        luminanceThreshold={0.84}
         luminanceSmoothing={0.28}
         mipmapBlur
         radius={0.72}

@@ -112,34 +112,48 @@ export function useScrollSnap() {
     let stops: number[] = []
     let animating = false
     let raf = 0
+    let releasedAt = 0
 
     const measure = () => {
-      const list: number[] = [0]
-      // one stop per chapter: the card centres itself inside its panel, so the
-      // panel top is the only anchor the reader needs to know about
-      document.querySelectorAll<HTMLElement>('.panel').forEach((el) => {
-        list.push(Math.round(el.getBoundingClientRect().top + window.scrollY))
+      const limit = Math.max(0, Math.round(document.documentElement.scrollHeight - window.innerHeight))
+      const list: number[] = []
+      // every chapter parks its own card dead centre on screen
+      document.querySelectorAll<HTMLElement>('.panel').forEach((panel) => {
+        const card = panel.querySelector<HTMLElement>('.reveal') ?? panel
+        const r = card.getBoundingClientRect()
+        const centre = r.top + window.scrollY + r.height / 2
+        list.push(Math.round(Math.min(limit, Math.max(0, centre - window.innerHeight / 2))))
       })
-      list.push(Math.round(document.documentElement.scrollHeight - window.innerHeight))
-      stops = [...new Set(list.filter((n) => n >= 0))].sort((a, b) => a - b)
+      list.push(limit)
+      const sorted = [...new Set(list)].sort((a, b) => a - b)
+      const out: number[] = []
+      sorted.forEach((n) => {
+        // near-identical stops at the very ends would cost a second, pointless notch
+        if (!out.length || n - out[out.length - 1] > 24) out.push(n)
+      })
+      if (out[out.length - 1] !== sorted[sorted.length - 1]) out.push(sorted[sorted.length - 1])
+      stops = out
     }
 
     const animateTo = (to: number) => {
       const from = window.scrollY
       const dist = to - from
       if (Math.abs(dist) < 2) return
-      const dur = Math.min(1050, 420 + Math.abs(dist) * 0.34)
+      const dur = Math.min(1250, 540 + Math.abs(dist) * 0.4)
       const t0 = performance.now()
       animating = true
       cancelAnimationFrame(raf)
       const step = (now: number) => {
         const k = Math.min(1, (now - t0) / dur)
-        const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2
+        const e = k < 0.5 ? 16 * k ** 5 : 1 - Math.pow(-2 * k + 2, 5) / 2
         // 'instant' is essential: a smooth behaviour here would restart the
         // CSS-driven animation every frame and cancel the tween
         window.scrollTo({ top: Math.round(from + dist * e), behavior: 'instant' as ScrollBehavior })
         if (k < 1) raf = requestAnimationFrame(step)
-        else animating = false
+        else {
+          animating = false
+          releasedAt = performance.now()
+        }
       }
       raf = requestAnimationFrame(step)
     }
@@ -163,6 +177,9 @@ export function useScrollSnap() {
       if (Math.abs(e.deltaY) < 1) return
       e.preventDefault()
       if (animating) return
+      // trackpads keep firing after the fingers lift; that tail must not
+      // trigger a second chapter
+      if (performance.now() - releasedAt < 420) return
       next(e.deltaY > 0 ? 1 : -1)
     }
 
@@ -199,6 +216,11 @@ export function useScrollSnap() {
     }
 
     measure()
+    // gallery images settle after mount and change card heights, so the stop
+    // list has to follow the layout instead of trusting the first measurement
+    const ro = new ResizeObserver(() => measure())
+    ro.observe(document.body)
+    window.addEventListener('load', measure)
     window.addEventListener('resize', measure)
     window.addEventListener('orientationchange', measure)
     window.addEventListener('wheel', onWheel, { passive: false })
@@ -206,6 +228,8 @@ export function useScrollSnap() {
     window.addEventListener('touchend', onTouchEnd, { passive: true })
     return () => {
       window.clearTimeout(settle)
+      ro.disconnect()
+      window.removeEventListener('load', measure)
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', measure)
       window.removeEventListener('orientationchange', measure)

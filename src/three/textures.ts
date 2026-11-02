@@ -325,20 +325,30 @@ export function wallTitleTexture(title: string, kicker: string) {
 /** Equirectangular sky used to build the environment map */
 export function skyEquirect() {
   const { c, ctx } = make(1024, 512)
+  // golden hour: warm peach horizon over a soft dusty sky
   const g = ctx.createLinearGradient(0, 0, 0, 512)
-  g.addColorStop(0, '#5b7086')
-  g.addColorStop(0.42, '#9aa7b4')
-  g.addColorStop(0.52, '#c9cdd2')
-  g.addColorStop(0.62, '#4a4d52')
-  g.addColorStop(1, '#1e2024')
+  g.addColorStop(0, '#8fa9bd')
+  g.addColorStop(0.34, '#c9b8b0')
+  g.addColorStop(0.48, '#f0c39a')
+  g.addColorStop(0.55, '#ffd8a8')
+  g.addColorStop(0.63, '#c98a5c')
+  g.addColorStop(1, '#6b4530')
   ctx.fillStyle = g
   ctx.fillRect(0, 0, 1024, 512)
   // sun glow
-  const sun = ctx.createRadialGradient(720, 170, 0, 720, 170, 260)
-  sun.addColorStop(0, 'rgba(255,236,205,0.85)')
-  sun.addColorStop(1, 'rgba(255,236,205,0)')
+  const sun = ctx.createRadialGradient(720, 210, 0, 720, 210, 320)
+  sun.addColorStop(0, 'rgba(255,242,214,0.95)')
+  sun.addColorStop(0.45, 'rgba(255,205,150,0.34)')
+  sun.addColorStop(1, 'rgba(255,205,150,0)')
   ctx.fillStyle = sun
   ctx.fillRect(0, 0, 1024, 512)
+  // warm haze band at the horizon
+  const haze = ctx.createLinearGradient(0, 240, 0, 340)
+  haze.addColorStop(0, 'rgba(255,226,186,0)')
+  haze.addColorStop(0.5, 'rgba(255,226,186,0.5)')
+  haze.addColorStop(1, 'rgba(255,226,186,0)')
+  ctx.fillStyle = haze
+  ctx.fillRect(0, 240, 1024, 100)
   const t = toTexture(c)
   t.mapping = THREE.EquirectangularReflectionMapping
   return t

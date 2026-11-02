@@ -340,7 +340,7 @@ function RollDoor({
             position={[0, slatH * (i + 0.5), 0]}
             castShadow
           >
-            <boxGeometry args={[width, slatH * 0.96, 0.05]} />
+            <boxGeometry args={[width, slatH * 0.9, 0.05]} />
             <meshStandardMaterial
               map={metal.map}
               normalMap={metal.normalMap}
@@ -379,8 +379,8 @@ function RollDoor({
       </group>
 
       {/* drum the curtain rolls into */}
-      <mesh position={[0, height + 0.09, 0]}>
-        <cylinderGeometry args={[0.11, 0.11, width - 0.06, 14]} />
+      <mesh position={[0, height + 0.09, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.13, 0.13, width - 0.04, 16]} />
         <meshStandardMaterial color="#7d838a" roughness={0.45} metalness={0.7} />
       </mesh>
     </group>
@@ -430,9 +430,9 @@ export function Truck({
     () =>
       new THREE.CatmullRomCurve3(
         [
-          new THREE.Vector3(17.5, 0, 32),
-          new THREE.Vector3(14.2, 0, 25.5),
-          new THREE.Vector3(10.4, 0, 18.4),
+          new THREE.Vector3(11.6, 0, 37.0),
+          new THREE.Vector3(11.9, 0, 24.6),
+          new THREE.Vector3(9.2, 0, 18.2),
           new THREE.Vector3(5.6, 0, 10.6),
           new THREE.Vector3(1.9, 0, 5.4),
           new THREE.Vector3(0, 0, 2.4),
@@ -446,7 +446,7 @@ export function Truck({
   )
   const pt = useMemo(() => new THREE.Vector3(), [])
   const tan = useMemo(() => new THREE.Vector3(), [])
-  const lastPos = useRef(new THREE.Vector3(17.5, 0, 32))
+  const lastPos = useRef(new THREE.Vector3(11.6, 0, 37.0))
   const travel = useRef(0)
 
   useFrame(() => {
@@ -489,10 +489,10 @@ export function Truck({
 
     // tail gate rides up into the drum
     const o = doorOpen.current ?? 0
-    if (interior.current) interior.current.intensity = 4 + o * 42
+    if (interior.current) interior.current.intensity = 2 + o * 3.2
     if (innerGlow.current) {
       const m = innerGlow.current.material as THREE.SpriteMaterial
-      m.opacity = o * 0.55
+      m.opacity = o * 0.14
     }
   })
 
@@ -576,29 +576,31 @@ export function Truck({
           </mesh>
         ))}
 
-        {/* rear frame */}
-        <mesh position={[0, 0, bodyL / 2 + 0.02]}>
-          <boxGeometry args={[bodyW, bodyH, 0.08]} />
-          <meshStandardMaterial color="#1b1e22" roughness={0.7} metalness={0.3} />
-        </mesh>
-        {/* rear opening (dark inside) */}
-        <mesh position={[0, 0, bodyL / 2 - 0.01]}>
-          <planeGeometry args={[bodyW - 0.28, bodyH - 0.3]} />
-          <meshStandardMaterial color="#0a0b0c" roughness={1} />
-        </mesh>
+        {/* rear frame: four bars around the opening, so the bay stays open */}
+        {[
+          { pos: [0, bodyH / 2 - 0.06, bodyL / 2 + 0.02], size: [bodyW, 0.16, 0.1] as const },
+          { pos: [0, -bodyH / 2 + 0.07, bodyL / 2 + 0.02], size: [bodyW, 0.16, 0.12] as const },
+          { pos: [-(bodyW / 2 - 0.07), 0, bodyL / 2 + 0.02], size: [0.16, bodyH, 0.1] as const },
+          { pos: [bodyW / 2 - 0.07, 0, bodyL / 2 + 0.02], size: [0.16, bodyH, 0.1] as const },
+        ].map((b, i) => (
+          <mesh key={`rf${i}`} position={b.pos as [number, number, number]} castShadow>
+            <boxGeometry args={b.size as unknown as [number, number, number]} />
+            <meshStandardMaterial color="#2b2f34" roughness={0.78} metalness={0.24} />
+          </mesh>
+        ))}
         {/* tail gate: real slatted roll-up door */}
         <RollDoor
           open={doorOpen}
           width={bodyW - 0.3}
           height={bodyH - 0.26}
           slats={11}
-          tint="#c8ccd2"
-          position={[0, -bodyH / 2, bodyL / 2 + 0.04]}
+          tint="#c3c6c8"
+          position={[0, -bodyH / 2, bodyL / 2 + 0.1]}
         />
 
         {/* interior warm light + glow */}
-        <pointLight ref={interior} position={[0, 0.4, 1.4]} intensity={4} distance={12} color="#ffb877" />
-        <sprite ref={innerGlow} position={[0, 0, bodyL / 2 + 0.4]} scale={[3.4, 3.2, 1]}>
+        <pointLight ref={interior} position={[0, 0.9, 0.9]} intensity={3} distance={11} color="#ffb877" />
+        <sprite ref={innerGlow} position={[0, 0, bodyL / 2 + 0.4]} scale={[2.8, 2.6, 1]}>
           <spriteMaterial map={glowTexture('#ffcf9c')} transparent opacity={0} depthWrite={false} />
         </sprite>
 
@@ -611,7 +613,7 @@ export function Truck({
             { pos: [0.55, -0.95, 0.6], yaw: 0.02 },
             { pos: [-0.45, -0.95, -0.6], yaw: -0.02 },
           ]}
-          tint="#dfe4ea"
+          tint="#b0aaa1"
         />
       </group>
 

@@ -4,7 +4,7 @@ const b=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',headless
 const p=await b.newPage(); await p.setViewport({width:1440,height:900})
 p.on('pageerror',e=>console.log('PAGEERR',e.message))
 p.on('error',e=>console.log('CRASH',e.message))
-await p.goto('http://127.0.0.1:4181/?qa=1',{waitUntil:'domcontentloaded',timeout:45000})
+await p.goto('https://3layersdev.github.io/depozit-secondhand-3d/?qa=1',{waitUntil:'domcontentloaded',timeout:45000})
 await p.waitForFunction(()=>document.documentElement.dataset.p!==undefined,{timeout:25000})
 await new Promise(r=>setTimeout(r,1500))
 const info=await p.evaluate(()=>{

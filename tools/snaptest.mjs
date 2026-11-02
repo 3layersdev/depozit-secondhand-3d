@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer-core'
 const b=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',headless:'shell',args:['--no-sandbox','--disable-dev-shm-usage']})
 const p=await b.newPage(); await p.setViewport({width:1440,height:900})
 const errs=[]; p.on('pageerror',e=>errs.push(e.message)); p.on('console',m=>{if(m.type()==='error')errs.push(m.text())})
-await p.goto('http://127.0.0.1:4181/',{waitUntil:'domcontentloaded',timeout:45000})
+await p.goto('https://3layersdev.github.io/depozit-secondhand-3d/',{waitUntil:'domcontentloaded',timeout:45000})
 await new Promise(r=>setTimeout(r,3000))
 const tops=await p.evaluate(()=>[...document.querySelectorAll('.panel')].map(e=>Math.round(e.getBoundingClientRect().top+scrollY)))
 const maxScroll=await p.evaluate(()=>document.documentElement.scrollHeight-innerHeight)
@@ -14,7 +14,7 @@ const snap=async(label)=>{ await p.mouse.wheel({deltaY:120}); await new Promise(
   const idx=tops.indexOf(y)
   console.log(`${label}: y=${y} nearest=${near} delta=${y-near} ${Math.abs(y-near)<=2?'SNAP OK':(idx>=0?'exact':'MISS')}`)
 }
-for(let i=1;i<=6;i++) await snap('wheel'+i)
+for(let i=1;i<=3;i++) await snap('wheel'+i)
 await p.mouse.wheel({deltaY:-120}); await new Promise(r=>setTimeout(r,3200))
 const back=await p.evaluate(()=>Math.round(scrollY))
 console.log('up: y='+back, tops.indexOf(back)>=0?'SNAP OK':'MISS')
