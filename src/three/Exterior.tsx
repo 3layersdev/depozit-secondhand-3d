@@ -2,19 +2,40 @@ import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import {
-  asphaltTexture,
   baleLabelTexture,
-  baleWrapTexture,
-  corrugatedTexture,
   glowTexture,
   shutterTexture,
   signTexture,
 } from './textures'
+import { asphaltMaps, baleMaps, claddingMaps } from './materials'
+import { TruckDetails, WarehouseDetails, YardDetails } from './details'
 import { range, smoothstep, type ScrollRef } from './sequence'
 
 /* ------------------------------------------------------------------ */
 /* Instanced bale stacks (shared by exterior + interior)              */
 /* ------------------------------------------------------------------ */
+
+/** Soft cloth sack: subdivided box, vertices pushed out into bulges. */
+function baleGeometry() {
+  const g = new THREE.BoxGeometry(1, 1, 1, 11, 8, 11)
+  const pos = g.attributes.position as THREE.BufferAttribute
+  const v = new THREE.Vector3()
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i)
+    const bulge =
+      Math.sin(v.x * 4.7 + 1.7) * Math.cos(v.y * 3.9) * Math.sin(v.z * 4.5 + 0.6)
+    const crease = Math.sin(v.x * 11.5 + v.z * 7.3) * Math.sin(v.z * 9.1 - v.y * 5.5)
+    const edge = Math.max(Math.abs(v.x), Math.abs(v.y), Math.abs(v.z))
+    // keep the corners sagging inward: packed sacks round off at the edges
+    const amount = (0.055 * bulge + 0.016 * crease) * (1.0 - edge * 0.55)
+    v.multiplyScalar(1 + amount)
+    // sag the top face a little, the way a packed sack settles
+    if (v.y > 0.35) v.y -= 0.02 + 0.02 * Math.abs(Math.sin(v.x * 6))
+    pos.setXYZ(i, v.x, v.y, v.z)
+  }
+  g.computeVertexNormals()
+  return g
+}
 
 export type BaleSpec = {
   pos: [number, number, number]
@@ -32,10 +53,8 @@ export function Bales({
   tint?: string
 }) {
   const ref = useRef<THREE.InstancedMesh>(null)
-  const wrap = useMemo(() => baleWrapTexture(), [])
-  useMemo(() => {
-    wrap.repeat.set(2 * wrapScale, 1.4 * wrapScale)
-  }, [wrap, wrapScale])
+  const wrap = useMemo(() => baleMaps([2 * wrapScale, 1.4 * wrapScale]), [wrapScale])
+  const geo = useMemo(() => baleGeometry(), [])
 
   useEffect(() => {
     const mesh = ref.current
@@ -55,13 +74,24 @@ export function Bales({
       mesh.setMatrixAt(i, m)
     })
     mesh.instanceMatrix.needsUpdate = true
+    // slight tone spread per sack: same cloth, different light and dye lots
+    const c = new THREE.Color()
+    specs.forEach((_, i) => {
+      const t = 0.88 + ((i * 37) % 17) / 100
+      c.setRGB(t, t * 0.995, t * 0.975)
+      mesh.setColorAt(i, c)
+    })
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
   }, [specs])
 
   return (
     <instancedMesh ref={ref} args={[undefined, undefined, specs.length]} castShadow receiveShadow>
-      <boxGeometry args={[1, 1, 1]} />
+      <primitive object={geo} attach="geometry" />
       <meshPhysicalMaterial
-        map={wrap}
+        map={wrap.map}
+        normalMap={wrap.normalMap}
+        roughnessMap={wrap.roughnessMap}
+        normalScale={new THREE.Vector2(0.85, 0.85)}
         color={tint}
         roughness={0.42}
         metalness={0}
@@ -105,7 +135,7 @@ export function stack(
 /* ------------------------------------------------------------------ */
 
 export function Yard() {
-  const asphalt = useMemo(() => asphaltTexture(), [])
+  const asphalt = useMemo(() => asphaltMaps([26, 26]), [])
   const lines = useMemo(() => {
     const g: { pos: [number, number, number]; size: [number, number] }[] = []
     for (let i = -3; i <= 3; i++) {
@@ -118,7 +148,14 @@ export function Yard() {
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
         <planeGeometry args={[320, 320]} />
-        <meshStandardMaterial map={asphalt} roughness={0.92} metalness={0.02} />
+        <meshStandardMaterial
+          map={asphalt.map}
+          normalMap={asphalt.normalMap}
+          normalScale={new THREE.Vector2(0.7, 0.7)}
+          roughnessMap={asphalt.roughnessMap}
+          metalness={0.06}
+          envMapIntensity={0.7}
+        />
       </mesh>
       {lines.map((l, i) => (
         <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={l.pos}>
@@ -144,7 +181,7 @@ export function Yard() {
 /* ------------------------------------------------------------------ */
 
 export function Warehouse({ open }: { open: React.RefObject<number> }) {
-  const corrugated = useMemo(() => corrugatedTexture(), [])
+  const corrugated = useMemo(() => claddingMaps([7, 2.4]), [])
   const shutter = useMemo(() => shutterTexture(), [])
   const sign = useMemo(() => signTexture(), [])
   const glow = useMemo(() => glowTexture(), [])
@@ -168,7 +205,15 @@ export function Warehouse({ open }: { open: React.RefObject<number> }) {
       {/* main wall */}
       <mesh position={[0, 7.5, -14]} receiveShadow>
         <planeGeometry args={[76, 15]} />
-        <meshStandardMaterial map={corrugated} color="#7d838a" roughness={0.62} metalness={0.35} />
+        <meshStandardMaterial
+          map={corrugated.map}
+          normalMap={corrugated.normalMap}
+          normalScale={new THREE.Vector2(1.1, 1.1)}
+          roughnessMap={corrugated.roughnessMap}
+          color="#8b9299"
+          metalness={0.55}
+          envMapIntensity={0.95}
+        />
       </mesh>
       {/* parapet + roof slab */}
       <mesh position={[0, 15.2, -12]} castShadow>
@@ -232,6 +277,8 @@ export function Warehouse({ open }: { open: React.RefObject<number> }) {
         <meshStandardMaterial map={sign} roughness={0.55} metalness={0.1} emissive="#ffffff" emissiveMap={sign} emissiveIntensity={0.22} />
       </mesh>
       <pointLight position={[0, 10.6, -11.2]} intensity={26} distance={26} color="#ffcf9e" />
+
+      <WarehouseDetails />
 
       {/* roof vents */}
       {[-22, -3, 12, 24].map((x) => (
@@ -493,6 +540,8 @@ export function Truck({
       </mesh>
 
       {/* rear bumper / underrun bar + lights */}
+      <TruckDetails livery={livery} />
+
       <mesh position={[0, 0.52, 8.15]}>
         <boxGeometry args={[2.4, 0.16, 0.16]} />
         <meshStandardMaterial color="#23262a" roughness={0.7} metalness={0.4} />
@@ -523,6 +572,7 @@ export function YardProps() {
   )
   return (
     <group>
+      <YardDetails />
       <Bales specs={outside} />
       {/* pallets */}
       {[-16, 19, 22.5].map((x, i) => (

@@ -10,7 +10,9 @@ import { mkdirSync } from 'node:fs'
 
 const url = process.argv[2] ?? 'http://127.0.0.1:4176/'
 const out = process.argv[3] ?? 'shots'
-const BEATS = [0, 0.08, 0.16, 0.24, 0.31, 0.38, 0.44, 0.47, 0.5, 0.56, 0.62, 0.68, 0.74, 0.8, 0.86, 0.92, 1]
+const BEATS = process.env.BEATS
+  ? process.env.BEATS.split(',').map(Number)
+  : [0, 0.08, 0.16, 0.24, 0.31, 0.38, 0.44, 0.47, 0.5, 0.56, 0.62, 0.68, 0.74, 0.8, 0.86, 0.92, 1]
 
 mkdirSync(out, { recursive: true })
 

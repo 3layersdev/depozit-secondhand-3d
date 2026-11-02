@@ -9,7 +9,7 @@
  *
  * Fapte confirmate acolo și folosite aici: import direct, exclusiv Anglia,
  * peste 20 de ani pe piață, depozit propriu în București, neplătitor de TVA,
- * saci transparenți de 10–30 kg care pot fi deschiși la vizionare, cinci
+ * saci transparenți de 20–25 kg care pot fi deschiși la vizionare, cinci
  * calități (extra cremă, cremă, calitatea I, calitatea II, solduri), factură
  * fiscală + acte de proveniență + certificat de dezinsectare/dezinfecție,
  * transport național și internațional la cerere.
@@ -26,7 +26,7 @@ export const brand = {
   mark: 'DSH',
   kicker: 'Depozit · București',
   tagline:
-    'Haine second-hand din Anglia, sortate pe calități. Import direct, depozit propriu, peste 20 de ani pe piață.',
+    'Haine second-hand originale din UK, în saci de 20–25 kg, sortate pe calități. Import direct, depozit propriu în București, peste 20 de ani pe piață.',
   phone: '0744 239 757',
   phoneHref: 'tel:+40744239757',
   phone2: '0726 253 453',
@@ -42,10 +42,10 @@ export const brand = {
 export const hero = {
   eyebrow: 'Import direct · exclusiv Anglia',
   title: ['Deschide', 'ușa', 'camionului.'],
-  text: 'Baloturi de haine second-hand aduse din Anglia, sortate pe calități și vândute en gros din depozitul nostru din București. Scroll pentru a intra în depozit.',
+  text: 'Haine second-hand originale din Anglia, vândute exclusiv la sac de 20–25 kg. Marfa e sortată pe calități și pleacă din depozitul nostru din București. Scroll pentru a intra în depozit.',
   stats: [
-    { value: '20+', label: 'ani pe piață' },
-    { value: '10–30 kg', label: 'sac transparent' },
+    { value: '3,5K', label: 'urmași pe Facebook' },
+    { value: '20–25 kg', label: 'sacul standard' },
     { value: '5', label: 'calități sortate' },
   ],
 }
@@ -55,19 +55,19 @@ export const chapters = [
     id: 'intro',
     label: 'Intro',
     title: 'Camionul intră în curte',
-    text: 'Marfa vine din Anglia, pe palet, cu acte. Fiecare transport intră în depozit și se sortează pe calități.',
+    text: 'Marfa vine originală din Anglia, pe palet, cu acte. Fiecare transport intră în depozit și se sortează pe calități.',
   },
   {
     id: 'door',
     label: 'Ușa',
     title: 'Ridicăm oblonul',
-    text: 'Saci transparenți, etichetați pe calitate și categorie. Îi poți deschide în depozit, înainte să cumperi.',
+    text: 'Saci transparenți de 20–25 kg, etichetați pe calitate și categorie. Îi poți deschide în depozit, înainte să cumperi.',
   },
   {
     id: 'services',
     label: 'Servicii',
     title: 'Ce găsești înăuntru',
-    text: 'Import direct, sortare pe calități, vizionare la fața locului și livrare în toată țara.',
+    text: 'Import direct din UK, sortare pe calități, vizionare la fața locului și livrare în toată țara — la sac, nu la balot.',
   },
   {
     id: 'quality',
@@ -79,7 +79,7 @@ export const chapters = [
     id: 'gallery',
     label: 'Galerie',
     title: 'Depozitul, în imagini',
-    text: 'Poze din hală: baloturi pe palet, masa de sortare, încărcarea la rampă.',
+    text: 'Poze reale din hala noastră și de pe pagina de Facebook: saci pe palet, masa de sortare, încărcarea la rampă.',
   },
   {
     id: 'contact',
@@ -94,8 +94,8 @@ export const services = [
     id: 'bales',
     index: '01',
     title: 'Import direct din UK',
-    text: 'Suntem importator direct: marfa vine exclusiv din Anglia, pe palet, cu documente. Fără intermediari între depozit și magazinele tale.',
-    points: ['Exclusiv Anglia', 'Depozit propriu în București', 'Neplătitor de TVA'],
+    text: 'Suntem importator direct: marfa vine originală, exclusiv din Anglia, pe palet, cu documente. Fără intermediari între depozit și magazinul tău.',
+    points: ['Original, exclusiv UK', 'Depozit propriu în București', 'Neplătitor de TVA'],
   },
   {
     id: 'sorting',
@@ -108,8 +108,8 @@ export const services = [
     id: 'check',
     index: '03',
     title: 'Vizionare în depozit',
-    text: 'Sacii transparenți de 10–30 kg pot fi deschiși la fața locului. Vezi exact ce cumperi, înainte să pleci cu marfa.',
-    points: ['Saci 10–30 kg', 'Deschiși la vizionare', 'Factură și acte de proveniență'],
+    text: 'Vindem doar la sac de 20–25 kg, niciodată la balot. Sacii sunt transparenți și pot fi deschiși la fața locului, ca să vezi exact ce cumperi.',
+    points: ['Numai la sac de 20–25 kg', 'Deschiși la vizionare', 'Factură și acte de proveniență'],
   },
   {
     id: 'delivery',
@@ -161,7 +161,7 @@ export const grades = [
     id: 'g2',
     name: 'Calitatea II',
     tag: 'Volum',
-    text: 'Marfă pentru prețuri mici și vânzare rapidă, la sac sau la kilogram.',
+    text: 'Marfă pentru prețuri mici și vânzare rapidă, tot la sac de 20–25 kg.',
     metric: 0.55,
   },
 ]
@@ -173,64 +173,97 @@ export type GalleryItem = {
   title: string
   meta: string
   kind: 'photo' | 'reel'
+  size?: 'lg' | 'tall' | 'sm'
 }
 
+export const facebook = {
+  page: 'https://www.facebook.com/depozitsecondhandromania/',
+  label: 'Depozit haine second-hand in Bucuresti',
+  followers: '3,5K',
+  recommend: '96%',
+  reviews: 18,
+  // widget public: afișează postările și clipurile reale, fără login
+  embed:
+    'https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fdepozitsecondhandromania&tabs=timeline&width=500&height=640&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false&lazy=true',
+}
+
+/**
+ * Pozele sunt luate din pagina noastră de Facebook (descărcate din
+ * facebook.com/depozitsecondhandromania). Facebook servește public
+ * variante reduse, așa că tile-urile mici stau la dimensiunea lor reală.
+ */
 export const gallery: GalleryItem[] = [
   {
-    id: 'warehouse',
-    src: asset('media/01-warehouse.jpg'),
-    tiny: asset('media/01-warehouse_tiny.jpg'),
-    title: 'Hala de depozitare',
-    meta: 'Baloturi pe palet, gata de livrare',
+    id: 'brands',
+    src: asset('media/fb/fb-01.jpg'),
+    tiny: asset('media/fb/fb-01.jpg'),
+    title: 'Branduri din UK',
+    meta: 'Colaj de pe pagina noastră: mărcile care intră în saci',
     kind: 'photo',
+    size: 'lg',
   },
   {
-    id: 'sorting',
-    src: asset('media/02-sorting.jpg'),
-    tiny: asset('media/02-sorting_tiny.jpg'),
-    title: 'Masa de sortare',
-    meta: 'Damă, bărbați, copii, pe calități',
-    kind: 'reel',
+    id: 'crema-anglia',
+    src: asset('media/fb/lb-01.jpg'),
+    tiny: asset('media/fb/lb-01.jpg'),
+    title: 'Cremă Anglia',
+    meta: 'Calitatea cremă, așa cum o postăm pe Facebook',
+    kind: 'photo',
+    size: 'tall',
+  },
+  {
+    id: 'bags',
+    src: asset('media/fb/fb-02.jpg'),
+    tiny: asset('media/fb/fb-02.jpg'),
+    title: 'Genți și poșete',
+    meta: 'Marochinărie, la sac',
+    kind: 'photo',
+    size: 'sm',
+  },
+  {
+    id: 'bags2',
+    src: asset('media/fb/fb-05.jpg'),
+    tiny: asset('media/fb/fb-05.jpg'),
+    title: 'Marochinărie',
+    meta: 'Sortată pe loturi',
+    kind: 'photo',
+    size: 'sm',
   },
   {
     id: 'denim',
-    src: asset('media/03-denim-bales.jpg'),
-    tiny: asset('media/03-denim-bales_tiny.jpg'),
-    title: 'Baloturi de blugi',
-    meta: 'Etichetate pe calitate și mărime',
+    src: asset('media/fb/fb-06.jpg'),
+    tiny: asset('media/fb/fb-06.jpg'),
+    title: 'Blugi',
+    meta: 'Pachete de blugi, gata de sac',
     kind: 'photo',
+    size: 'sm',
   },
   {
-    id: 'dock',
-    src: asset('media/04-truck-dock.jpg'),
-    tiny: asset('media/04-truck-dock_tiny.jpg'),
-    title: 'Încărcare la rampă',
-    meta: 'Plecare spre magazinele partenere',
-    kind: 'reel',
+    id: 'folded',
+    src: asset('media/fb/fb-03.jpg'),
+    tiny: asset('media/fb/fb-03.jpg'),
+    title: 'Haine pliate',
+    meta: 'Sortare pe categorii',
+    kind: 'photo',
+    size: 'sm',
   },
   {
-    id: 'showroom',
-    src: asset('media/05-showroom.jpg'),
-    tiny: asset('media/05-showroom_tiny.jpg'),
-    title: 'Marfa pe umeraș',
-    meta: 'Cum arată un lot bun, sortat',
+    id: 'tagged',
+    src: asset('media/fb/fb-04.jpg'),
+    tiny: asset('media/fb/fb-04.jpg'),
+    title: 'Articole cu etichetă',
+    meta: 'Piese noi, cu etichetă',
     kind: 'photo',
+    size: 'sm',
   },
   {
-    id: 'open',
-    src: asset('media/06-open-bale.jpg'),
-    tiny: asset('media/06-open-bale_tiny.jpg'),
-    title: 'Deschidem un sac',
-    meta: 'Ce e înăuntru, la vedere',
+    id: 'mixed',
+    src: asset('media/fb/fb-08.jpg'),
+    tiny: asset('media/fb/fb-08.jpg'),
+    title: 'Amestec mixt',
+    meta: 'Cremă și calitatea 1',
     kind: 'photo',
-  },
-  {
-    id: 'aerial',
-    src: asset('media/07-aerial.jpg'),
-    tiny: asset('media/07-aerial_tiny.jpg'),
-    title: 'Depozitul de sus',
-    meta: 'Stoc organizat pe categorii',
-    kind: 'photo',
+    size: 'sm',
   },
 ]
 

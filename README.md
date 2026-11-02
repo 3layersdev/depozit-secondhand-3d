@@ -25,13 +25,14 @@ prin galerie și se oprește la peretele de contact.
 
 Textele și cifrele vin din surse reale, nu inventate:
 
-- pagina de Facebook `facebook.com/depozitsecondhandromania`
+- pagina de Facebook `facebook.com/depozitsecondhandromania` (pozele din galerie sunt
+  descărcate de acolo; widgetul din secțiunea Galerie afișează postările reale)
 - arhiva Wayback Machine a `depozitnoubucuresti.com` (2011–2024): paginile
   *Despre noi*, *Produse*, *Contact*
 
 Fapte preluate: import direct exclusiv Anglia, peste 20 de ani pe piață, depozit
 propriu în București, neplătitor de TVA, cinci calități de marfă, saci transparenți
-de 10–30 kg deschiși la vizionare, factură + acte de proveniență + certificat de
+de 20–25 kg deschiși la vizionare. Vindem exclusiv la sac, nu la balot, factură + acte de proveniență + certificat de
 dezinsectare/dezinfecție, transport național și internațional la cerere.
 
 ## Dezvoltare

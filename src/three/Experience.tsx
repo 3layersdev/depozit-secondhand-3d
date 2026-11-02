@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
+import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing'
 import { Yard, Warehouse, Truck, YardProps } from './Exterior'
 import { Interior } from './Interior'
 import { skyEquirect } from './textures'
@@ -25,8 +26,9 @@ function Rig({ progress }: { progress: ScrollRef }) {
   const pos = useMemo(() => new THREE.Vector3(), [])
   const tgt = useMemo(() => new THREE.Vector3(), [])
   const look = useMemo(() => new THREE.Vector3(), [])
+  const par = useRef({ x: 0, y: 0 })
 
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
     const p = progress.current.p
     smooth.current = damp(smooth.current, p, p < 0.02 ? 18 : 7, Math.min(dt, 0.05))
     const s = smooth.current
@@ -39,19 +41,31 @@ function Rig({ progress }: { progress: ScrollRef }) {
       sampleVec3(INT_TGT, s, tgt)
     }
 
-    // portrait screens: pull back a touch so the composition still reads
-    const portrait = size.height > size.width
+    // tall screens: pull the camera back along the view axis so the truck and
+    // the shed stay inside the narrower horizontal field of view
+    const aspect = size.width / size.height
+    const portrait = aspect < 1
     if (portrait) {
-      pos.x *= 0.72
-      pos.y += 0.35
+      const pull = THREE.MathUtils.clamp(1.18 / aspect, 1, 2) * 0.92
+      pos.sub(tgt).multiplyScalar(pull).add(tgt)
+      tgt.y -= 0.35
     }
+
+    // hand-held feel: the view drifts a couple of centimetres with the pointer,
+    // critically damped so it never snaps
+    const px = state.pointer.x
+    const py = state.pointer.y
+    par.current.x = damp(par.current.x, px, 2.6, Math.min(dt, 0.05))
+    par.current.y = damp(par.current.y, py, 2.6, Math.min(dt, 0.05))
+    pos.x += par.current.x * 0.42
+    pos.y += par.current.y * 0.26
 
     camera.position.lerp(pos, 0.65)
     look.lerp(tgt, 0.5)
     camera.lookAt(look)
 
     const cam = camera as THREE.PerspectiveCamera
-    const targetFov = portrait ? 62 : 48
+    const targetFov = portrait ? 64 : 48
     if (Math.abs(cam.fov - targetFov) > 0.01) {
       cam.fov = THREE.MathUtils.lerp(cam.fov, targetFov, 0.1)
       cam.updateProjectionMatrix()
@@ -64,7 +78,7 @@ function Rig({ progress }: { progress: ScrollRef }) {
 function Atmosphere({ progress }: { progress: ScrollRef }) {
   const { gl, scene } = useThree()
   const sky = useMemo(() => skyEquirect(), [])
-  const extFog = useMemo(() => new THREE.FogExp2('#8d97a3', 0.0072), [])
+  const extFog = useMemo(() => new THREE.FogExp2('#c8a184', 0.0052), [])
   const intFog = useMemo(() => new THREE.FogExp2('#08090c', 0.03), [])
 
   useEffect(() => {
@@ -95,19 +109,19 @@ function ExteriorLights({ progress }: { progress: ScrollRef }) {
 
   useFrame(() => {
     const p = progress.current.p
-    if (sun.current) sun.current.intensity = 2.4 * (1 - smoothstep(range(p, 0.3, 0.5)))
+    if (sun.current) sun.current.intensity = 3.3 * (1 - smoothstep(range(p, 0.3, 0.5)))
     if (hemi.current) hemi.current.intensity = 0.55 * (1 - smoothstep(range(p, 0.35, 0.5)))
     if (fill.current) fill.current.intensity = 12 + 26 * smoothstep(range(p, 0.28, 0.46))
   })
 
   return (
     <group>
-      <hemisphereLight ref={hemi} args={['#b9c6d4', '#3b3a36', 0.55]} />
+      <hemisphereLight ref={hemi} args={['#e8c39b', '#4a3626', 0.62]} />
       <directionalLight
         ref={sun}
         position={[34, 26, 22]}
-        intensity={2.4}
-        color="#ffe6c4"
+        intensity={3.3}
+        color="#ffdcae"
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-45}
@@ -116,10 +130,30 @@ function ExteriorLights({ progress }: { progress: ScrollRef }) {
         shadow-camera-bottom={-45}
         shadow-bias={-0.0006}
       />
+      {/* cool rim from behind: separates the truck from the dark facade */}
+      <directionalLight position={[-26, 14, -18]} intensity={0.95} color="#ffb877" />
       {/* warm bounce from the open dock */}
       <pointLight ref={fill} position={[0, 2.4, 10]} intensity={12} distance={26} color="#ffb877" />
-      <ambientLight intensity={0.18} />
+      <ambientLight intensity={0.22} color="#ffd9b0" />
     </group>
+  )
+}
+
+function Grade() {
+  const { size } = useThree()
+  // bloom is the expensive pass; skip it on phones where the GPU budget is thin
+  if (size.width < 760) return null
+  return (
+    <EffectComposer enableNormalPass={false} multisampling={0}>
+      <Bloom
+        intensity={0.55}
+        luminanceThreshold={0.72}
+        luminanceSmoothing={0.28}
+        mipmapBlur
+        radius={0.72}
+      />
+      <Vignette offset={0.28} darkness={0.72} eskil={false} />
+    </EffectComposer>
   )
 }
 
@@ -152,6 +186,7 @@ export function Experience({ progress }: { progress: ScrollRef }) {
         <Truck progress={progress} wheelSpin={wheelSpin} doorOpen={doorOpen} />
       </group>
       <Interior progress={progress} />
+      <Grade />
     </>
   )
 }

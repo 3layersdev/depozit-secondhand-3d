@@ -9,7 +9,7 @@ page.on('pageerror', e => errs.push(`pageerror: ${e.message}`))
 page.on('requestfailed', r => errs.push(`requestfailed: ${r.url().slice(-60)} ${r.failure()?.errorText}`))
 page.on('response', r => { if (r.status() >= 400) errs.push(`http${r.status()}: ${r.url().slice(-70)}`) })
 page.on('console', m => { if (m.type() === 'error') errs.push(`console: ${m.text().slice(0,160)}`) })
-await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 })
+await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 })
 await new Promise(r => setTimeout(r, 6000))
 const info = await page.evaluate(() => ({
   canvas: !!document.querySelector('canvas'),

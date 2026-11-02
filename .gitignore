@@ -25,3 +25,11 @@ dist-ssr
 
 shots
 ghp-deploy
+
+# secrets — never commit
+.env
+.env.*
+!.env.example
+
+# local QA captures
+shots*/

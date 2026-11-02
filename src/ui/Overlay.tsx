@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { brand, categories, chapters, contact, gallery, grades, hero, relevant, services, steps } from '../content'
+import { brand, categories, chapters, contact, facebook, gallery, grades, hero, relevant, services, steps } from '../content'
 
 /* ------------------------------------------------------------------ */
 /* Chrome                                                             */
@@ -160,10 +160,10 @@ export function TruckSection() {
           <span className="svc__tag">20+ ani</span>
         </div>
         <div className="svc__row">
-          <span className="svc__idx">10–30<span className="svc__unit">kg</span></span>
+          <span className="svc__idx">20–25<span className="svc__unit">kg</span></span>
           <span>
-            <span className="svc__name">Saci transparenți, deschiși la vizionare</span>
-            <span className="svc__points">Vezi exact ce cumperi, înainte să pleci cu marfa.</span>
+            <span className="svc__name">Numai la sac de 20–25 kg, nu la balot</span>
+            <span className="svc__points">Saci transparenți, deschiși la vizionare. Vezi exact ce cumperi.</span>
           </span>
           <span className="svc__tag">Factură + avize</span>
         </div>
@@ -192,7 +192,7 @@ export function DoorSection() {
 const TAGS: Record<string, string> = {
   bales: 'Import direct',
   sorting: '5 calități',
-  check: '10–30 kg',
+  check: '20–25 kg',
   delivery: 'Național',
 }
 
@@ -264,7 +264,7 @@ export function GallerySection({ onOpen }: { onOpen: (index: number) => void }) 
         {gallery.map((g, i) => (
           <button
             type="button"
-            className="thumb"
+            className={`thumb thumb--${g.size ?? 'sm'}`}
             key={g.id}
             onClick={() => onOpen(i)}
             aria-label={`Deschide ${g.title}`}
@@ -274,6 +274,33 @@ export function GallerySection({ onOpen }: { onOpen: (index: number) => void }) 
             <span className="thumb__tag">{g.kind === 'reel' ? 'Clip' : 'Foto'}</span>
           </button>
         ))}
+      </div>
+
+      <div className="fbblock">
+        <div className="fbblock__side">
+          <p className="eyebrow">Facebook</p>
+          <h3 className="fbblock__title">Clipurile și pozele, pe viu</h3>
+          <p className="fbblock__text">
+            Postăm zilnic ce intră în depozit: {facebook.followers} urmăritori, {facebook.recommend} recomandări.
+            Feed-ul de mai jos e pagina noastră reală, cu poze și clipuri.
+          </p>
+          <a className="btn btn--ghost" href={facebook.page} target="_blank" rel="noreferrer">
+            Deschide pagina de Facebook
+          </a>
+        </div>
+        <div className="fbblock__frame">
+          <iframe
+            title="Pagina de Facebook Depozit haine second-hand in Bucuresti"
+            src={facebook.embed}
+            width="500"
+            height="640"
+            style={{ border: 'none', overflow: 'hidden' }}
+            scrolling="no"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            loading="lazy"
+          />
+        </div>
       </div>
     </Chapter>
   )

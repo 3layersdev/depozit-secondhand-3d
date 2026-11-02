@@ -105,11 +105,14 @@ export default function App() {
     return () => clearTimeout(t)
   }, [])
 
+  // ?clean=1 strips the editorial layer so the render can be reviewed on its own
+  const clean = new URLSearchParams(window.location.search).has('clean')
+
   const distance = Math.abs(progress - SCENE_CUT)
   const flash = Math.max(0, 1 - distance / 0.018)
 
   return (
-    <div className="app" style={{ ["--fallback-image" as string]: `url(${asset('media/01-warehouse.jpg')})` } as CSSProperties}>
+    <div className={`app ${clean ? 'app--clean' : ''}`} style={{ ["--fallback-image" as string]: `url(${asset('media/01-warehouse.jpg')})` } as CSSProperties}>
       <div className={`stage ${showStage ? '' : 'stage--fallback'}`}>
         {hasWebGL ? (
           <StageBoundary
@@ -118,7 +121,7 @@ export default function App() {
           >
           <Canvas
             shadows="percentage"
-            dpr={[1, 1.8]}
+            dpr={[1, window.innerWidth < 900 ? 1.5 : 1.8]}
             gl={{ antialias: true, powerPreference: 'high-performance' }}
             camera={{ position: [27, 12, 54], fov: 48, near: 0.1, far: 420 }}
             onCreated={({ gl }) => {

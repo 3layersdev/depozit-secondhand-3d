@@ -4,8 +4,6 @@ import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import { Bales, stack } from './Exterior'
 import {
-  concreteTexture,
-  corrugatedTexture,
   garmentPalette,
   glowTexture,
   panelTexture,
@@ -13,6 +11,7 @@ import {
   wallTitleTexture,
 } from './textures'
 import { gallery, grades, services } from '../content'
+import { concreteMaps, claddingMaps } from './materials'
 import { SCENE_CUT, type ScrollRef } from './sequence'
 
 const HALL_W = 15
@@ -25,23 +24,23 @@ const HALL_BACK = -52
 /* ------------------------------------------------------------------ */
 
 function Hall() {
-  const concrete = useMemo(() => {
-    const t = concreteTexture()
-    t.repeat.set(10, 26)
-    return t
-  }, [])
-  const metal = useMemo(() => {
-    const t = corrugatedTexture()
-    t.repeat.set(20, 2)
-    return t
-  }, [])
+  const concrete = useMemo(() => concreteMaps([5, 16]), [])
+  const metal = useMemo(() => claddingMaps([9, 2]), [])
 
   return (
     <group>
       {/* floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, (HALL_FRONT + HALL_BACK) / 2]} receiveShadow>
         <planeGeometry args={[HALL_W, HALL_FRONT - HALL_BACK]} />
-        <meshStandardMaterial map={concrete} color="#8a8d92" roughness={0.42} metalness={0.08} />
+        <meshStandardMaterial
+          map={concrete.map}
+          normalMap={concrete.normalMap}
+          normalScale={new THREE.Vector2(0.6, 0.6)}
+          roughnessMap={concrete.roughnessMap}
+          color="#a4a8ad"
+          metalness={0.05}
+          envMapIntensity={0.85}
+        />
       </mesh>
       {/* ceiling */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, HALL_H, (HALL_FRONT + HALL_BACK) / 2]}>
@@ -57,13 +56,27 @@ function Hall() {
           receiveShadow
         >
           <planeGeometry args={[HALL_FRONT - HALL_BACK, HALL_H]} />
-          <meshStandardMaterial map={metal} color="#5c6168" roughness={0.72} metalness={0.3} />
+          <meshStandardMaterial
+            map={metal.map}
+            normalMap={metal.normalMap}
+            roughnessMap={metal.roughnessMap}
+            color="#6b7178"
+            metalness={0.42}
+            envMapIntensity={0.8}
+          />
         </mesh>
       ))}
       {/* back wall */}
       <mesh position={[0, HALL_H / 2, HALL_BACK]} receiveShadow>
         <planeGeometry args={[HALL_W, HALL_H]} />
-        <meshStandardMaterial map={metal} color="#4d5259" roughness={0.8} metalness={0.25} />
+        <meshStandardMaterial
+      map={metal.map}
+      normalMap={metal.normalMap}
+      roughnessMap={metal.roughnessMap}
+      color="#565c63"
+      metalness={0.35}
+      envMapIntensity={0.8}
+    />
       </mesh>
       {/* entry frame (behind camera at the start) */}
       <mesh position={[0, 1.5, HALL_FRONT]} rotation={[0, Math.PI, 0]}>

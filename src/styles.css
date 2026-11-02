@@ -1050,6 +1050,15 @@ a {
   background: linear-gradient(180deg, rgba(8, 9, 11, 0.2) 0%, rgba(8, 9, 11, 0.55) 45%, var(--ink) 100%);
 }
 
+/* review mode: keep the scroll track (it drives the film) but hide the copy */
+.app--clean .header,
+.app--clean .rail,
+.app--clean .track,
+.app--clean .veil {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* ------------------------------------------------------------------ */
 /* categories, fineprint, audience                                     */
 /* ------------------------------------------------------------------ */
@@ -1122,5 +1131,228 @@ a {
   .chip {
     font-size: 10px;
     padding: 5px 8px;
+  }
+}
+
+/* ================================================================== */
+/* Warm warehouse palette — second-hand clothing, not tech            */
+/* ================================================================== */
+:root {
+  --ink: #17120e;
+  --ink-2: #221a14;
+  --paper: #fdf5e9;
+  --muted: rgba(253, 245, 233, 0.68);
+  --line: rgba(253, 245, 233, 0.15);
+  --accent: #d9673a;
+  --accent-soft: #e8a06a;
+  --gold: #f0b429;
+  --steel: #c0a68d;
+}
+
+body {
+  background: #17120e;
+}
+
+.stage {
+  background: linear-gradient(180deg, #cf9f74 0%, #8d6a51 42%, #2a201a 100%);
+}
+
+::-webkit-scrollbar-track {
+  background: #191310;
+}
+::-webkit-scrollbar-thumb {
+  background: #3a2b21;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #51392a;
+}
+
+.card {
+  border-color: rgba(253, 245, 233, 0.16);
+  background: linear-gradient(160deg, rgba(38, 27, 21, 0.9), rgba(24, 18, 14, 0.76));
+  box-shadow: 0 30px 80px rgba(20, 12, 6, 0.5);
+}
+
+.h1,
+.h2 {
+  color: #fff6e8;
+}
+
+.thumb {
+  background-color: #2a1f18;
+}
+
+/* gallery mosaic: real Facebook photos, shown at their native size */
+.thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.thumb--lg {
+  grid-column: span 3;
+  aspect-ratio: 16 / 9;
+}
+.thumb--tall {
+  grid-column: span 1;
+  grid-row: span 2;
+  aspect-ratio: 9 / 16;
+}
+.thumb--sm {
+  grid-column: span 1;
+  aspect-ratio: 1 / 1;
+}
+
+.thumb img {
+  image-rendering: auto;
+}
+
+/* Facebook live block */
+.fbblock {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  gap: clamp(16px, 3vw, 34px);
+  align-items: start;
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: 20px;
+  border: 1px solid rgba(253, 245, 233, 0.14);
+  background: linear-gradient(150deg, rgba(41, 29, 22, 0.88), rgba(26, 19, 15, 0.78));
+}
+
+.fbblock__title {
+  font-family: var(--display);
+  font-size: clamp(1.15rem, 1.7vw, 1.6rem);
+  line-height: 1.1;
+  margin: 0 0 10px;
+  color: #fff6e8;
+}
+
+.fbblock__text {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0 0 16px;
+  max-width: 46ch;
+}
+
+.fbblock__frame {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #201711;
+}
+
+.fbblock__frame iframe {
+  display: block;
+  width: 100%;
+  height: 640px;
+}
+
+/* ================================================================== */
+/* Mobile: the film has to be visible, the copy becomes a bottom sheet */
+/* ================================================================== */
+@media (max-width: 900px) {
+  .veil {
+    opacity: 0.62;
+  }
+
+  .panel {
+    align-items: flex-end;
+    padding: 0 12px calc(14px + env(safe-area-inset-bottom));
+    min-height: 104svh;
+  }
+
+  .panel--hero {
+    min-height: 100svh;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .card {
+    width: 100%;
+    max-height: 46svh;
+    overflow: hidden;
+    padding: 15px 15px 17px;
+    border-radius: 18px;
+    -webkit-mask-image: linear-gradient(180deg, #000 84%, rgba(0, 0, 0, 0.55) 100%);
+    mask-image: linear-gradient(180deg, #000 84%, rgba(0, 0, 0, 0.55) 100%);
+  }
+
+  .eyebrow {
+    font-size: 9.5px;
+    letter-spacing: 0.2em;
+    margin-bottom: 8px;
+  }
+
+  .h1 {
+    font-size: clamp(1.9rem, 9vw, 2.6rem);
+    line-height: 0.98;
+    margin-bottom: 10px;
+  }
+
+  .h2 {
+    font-size: clamp(1.2rem, 5.6vw, 1.6rem);
+    margin-bottom: 8px;
+  }
+
+  .lede,
+  .card p {
+    font-size: 12.8px;
+    line-height: 1.45;
+    margin-bottom: 8px;
+  }
+
+  .chips {
+    display: none;
+  }
+
+  .stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .stats .stat:last-child {
+    display: block;
+  }
+
+  .stat__value {
+    font-size: 1.05rem;
+  }
+
+  .stat__label {
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+  }
+
+  .thumbs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .thumb--lg {
+    grid-column: span 3;
+  }
+  .thumb--tall {
+    grid-row: span 1;
+    aspect-ratio: 1 / 1;
+  }
+
+  .fbblock {
+    grid-template-columns: 1fr;
+    margin-top: 14px;
+    padding: 12px;
+  }
+  .fbblock__text {
+    font-size: 12.5px;
+    margin-bottom: 10px;
+  }
+  .fbblock__frame iframe {
+    height: 420px;
+  }
+
+  .contact {
+    max-height: 52svh;
+    overflow: hidden;
   }
 }
