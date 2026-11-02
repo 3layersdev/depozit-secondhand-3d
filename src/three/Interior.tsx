@@ -13,7 +13,7 @@ import {
   woodTexture,
 } from './textures'
 import { gallery, grades, services } from '../content'
-import { concreteMaps, claddingMaps } from './materials'
+import { useSurface } from './pbr'
 import { SCENE_CUT, type ScrollRef } from './sequence'
 
 const HALL_W = 15
@@ -26,8 +26,8 @@ const HALL_BACK = -52
 /* ------------------------------------------------------------------ */
 
 function Hall() {
-  const concrete = useMemo(() => concreteMaps([5, 16]), [])
-  const metal = useMemo(() => claddingMaps([9, 2]), [])
+  const concrete = useSurface('concrete', [7, 22])
+  const metal = useSurface('cladding', [30, 3])
 
   return (
     <group>

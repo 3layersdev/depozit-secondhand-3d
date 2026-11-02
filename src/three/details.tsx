@@ -5,7 +5,7 @@
  */
 import { useMemo } from 'react'
 import * as THREE from 'three'
-import { brushedMetalMaps, palletMaps } from './materials'
+import { useSurface } from './pbr'
 import { signTexture } from './textures'
 
 const rubber = <meshStandardMaterial color="#15171a" roughness={0.92} metalness={0.05} />
@@ -200,7 +200,7 @@ export function TruckDetails({ livery }: { livery: THREE.Texture }) {
 /* ------------------------------------------------------------------ */
 
 export function WarehouseDetails() {
-  const metal = useMemo(() => brushedMetalMaps([3, 3]), [])
+  const metal = useSurface('steel', [3, 3])
   const plate = useMemo(() => signTexture('01', '', 'DOCK'), [])
 
   return (
@@ -299,7 +299,7 @@ export function WarehouseDetails() {
 /* ------------------------------------------------------------------ */
 
 export function YardDetails() {
-  const pallet = useMemo(() => palletMaps([1, 1]), [])
+  const pallet = useSurface('wood', [1.4, 1.4])
   const puddles = useMemo(
     () => [
       { p: [-6.2, 8.4] as [number, number], s: [3.1, 1.7] as [number, number], r: 0.4 },

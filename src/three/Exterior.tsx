@@ -6,7 +6,8 @@ import {
   glowTexture,
   signTexture,
 } from './textures'
-import { asphaltMaps, baleMaps, brushedMetalMaps, chassisMaps, claddingMaps, vehiclePaintMaps } from './materials'
+import { baleMaps } from './materials'
+import { useSurface } from './pbr'
 import { TruckDetails, WarehouseDetails, YardDetails } from './details'
 import { range, smoothstep, type ScrollRef } from './sequence'
 
@@ -134,7 +135,8 @@ export function stack(
 /* ------------------------------------------------------------------ */
 
 export function Yard() {
-  const asphalt = useMemo(() => asphaltMaps([26, 26]), [])
+  const asphalt = useSurface('asphalt', [64, 64])
+  const dock = useSurface('concrete', [12, 5])
   const lines = useMemo(() => {
     const g: { pos: [number, number, number]; size: [number, number] }[] = []
     for (let i = -3; i <= 3; i++) {
@@ -165,7 +167,7 @@ export function Yard() {
       {/* loading ramp */}
       <mesh position={[0, 0.3, -6.6]} receiveShadow>
         <boxGeometry args={[30, 0.6, 12]} />
-        <meshStandardMaterial color="#3a3d42" roughness={0.85} />
+        <meshStandardMaterial {...dock} color="#6e7278" metalness={0.05} roughness={1} />
       </mesh>
       <mesh position={[0, 0.62, -0.8]} receiveShadow>
         <boxGeometry args={[30, 0.04, 0.5]} />
@@ -189,7 +191,8 @@ export function Warehouse({ open }: { open: React.RefObject<number> }) {
     probe.bay = o
     if (glowRef.current) glowRef.current.opacity = 0.16 + 0.52 * o
   })
-  const corrugated = useMemo(() => claddingMaps([7, 2.4]), [])
+  const corrugated = useSurface('cladding', [28, 5.6])
+  const bayWall = useSurface('concrete', [3, 3])
   const sign = useMemo(() => signTexture(), [])
   const glow = useMemo(() => glowTexture(), [])
   return (
@@ -225,12 +228,12 @@ export function Warehouse({ open }: { open: React.RefObject<number> }) {
         <group key={x} position={[x, 0, 0]}>
           <mesh position={[0, 8.4, -10.6]} castShadow>
             <boxGeometry args={[11, 0.5, 6.4]} />
-            <meshStandardMaterial color="#2f3338" roughness={0.7} metalness={0.4} />
+            <meshStandardMaterial {...corrugated} color="#3b4046" roughness={0.8} metalness={0.45} />
           </mesh>
           {/* doorway recess */}
           <mesh position={[0, 3.1, -13.75]}>
             <planeGeometry args={[6.4, 6.2]} />
-            <meshStandardMaterial color="#16181b" roughness={0.95} />
+            <meshStandardMaterial {...bayWall} color="#2a2b2e" roughness={1} metalness={0} />
           </mesh>
           {/* rolling shutter: sectional curtain that climbs into the drum */}
           <RollDoor
@@ -323,7 +326,7 @@ function RollDoor({
   position?: [number, number, number]
   tint?: string
 }) {
-  const metal = useMemo(() => brushedMetalMaps([8, 1]), [])
+  const metal = useSurface('shutter', [7, 1.6])
   const curtain = useRef<THREE.Group>(null)
   const bottomRail = useRef<THREE.Group>(null)
   const slatRefs = useRef<Array<THREE.Mesh | null>>([])
@@ -438,8 +441,8 @@ export function Truck({
   const root = useRef<THREE.Group>(null)
   const wheels = useRef<THREE.Group>(null)
   const livery = useMemo(() => signTexture('DEPOZIT', 'SECOND-HAND', 'IMPORT DIRECT · ANGLIA · 20+ ANI'), [])
-  const paint = useMemo(() => vehiclePaintMaps([2.4, 1]), [])
-  const chassis = useMemo(() => chassisMaps([6, 2]), [])
+  const paint = useSurface('steel', [2.6, 1.1])
+  const chassis = useSurface('chassis', [7, 2.4])
   const interior = useRef<THREE.PointLight>(null)
   const innerGlow = useRef<THREE.Sprite>(null)
 
