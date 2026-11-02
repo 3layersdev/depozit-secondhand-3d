@@ -1,9 +1,10 @@
-import { Component, Suspense, useEffect, useState, type ReactNode } from 'react'
+import { Component, Suspense, useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { useProgress } from '@react-three/drei'
 import { Experience } from './three/Experience'
 import { SCENE_CUT } from './three/sequence'
 import { useScrollProgress } from './lib/hooks'
+import { asset } from './lib/asset'
 import {
   ContactSection,
   DoorSection,
@@ -108,7 +109,7 @@ export default function App() {
   const flash = Math.max(0, 1 - distance / 0.018)
 
   return (
-    <div className="app">
+    <div className="app" style={{ ["--fallback-image" as string]: `url(${asset('media/01-warehouse.jpg')})` } as CSSProperties}>
       <div className={`stage ${showStage ? '' : 'stage--fallback'}`}>
         {hasWebGL ? (
           <StageBoundary

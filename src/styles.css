@@ -10,6 +10,7 @@
   --display: 'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif;
   --body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --pad: clamp(18px, 5vw, 84px);
+  --fallback-image: none;
 }
 
 * {
@@ -1019,7 +1020,7 @@ a {
 .stage--fallback {
   background:
     linear-gradient(180deg, rgba(8, 9, 11, 0.72) 0%, rgba(8, 9, 11, 0.86) 55%, #08090b 100%),
-    url('/media/01-warehouse.jpg') center 30% / cover no-repeat;
+    var(--fallback-image) center 30% / cover no-repeat;
 }
 
 .fallback__poster {
@@ -1035,7 +1036,7 @@ a {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/media/01-warehouse.jpg');
+  background-image: var(--fallback-image);
   background-size: cover;
   background-position: center;
   opacity: 0.28;

@@ -18,6 +18,8 @@
  * număr de clienți) este ținută intenționat vagă sau marcată ca TODO.
  */
 
+import { asset } from './lib/asset'
+
 export const brand = {
   name: 'Depozit Second-Hand',
   suffix: 'București',
@@ -176,56 +178,56 @@ export type GalleryItem = {
 export const gallery: GalleryItem[] = [
   {
     id: 'warehouse',
-    src: '/media/01-warehouse.jpg',
-    tiny: '/media/01-warehouse_tiny.jpg',
+    src: asset('media/01-warehouse.jpg'),
+    tiny: asset('media/01-warehouse_tiny.jpg'),
     title: 'Hala de depozitare',
     meta: 'Baloturi pe palet, gata de livrare',
     kind: 'photo',
   },
   {
     id: 'sorting',
-    src: '/media/02-sorting.jpg',
-    tiny: '/media/02-sorting_tiny.jpg',
+    src: asset('media/02-sorting.jpg'),
+    tiny: asset('media/02-sorting_tiny.jpg'),
     title: 'Masa de sortare',
     meta: 'Damă, bărbați, copii, pe calități',
     kind: 'reel',
   },
   {
     id: 'denim',
-    src: '/media/03-denim-bales.jpg',
-    tiny: '/media/03-denim-bales_tiny.jpg',
+    src: asset('media/03-denim-bales.jpg'),
+    tiny: asset('media/03-denim-bales_tiny.jpg'),
     title: 'Baloturi de blugi',
     meta: 'Etichetate pe calitate și mărime',
     kind: 'photo',
   },
   {
     id: 'dock',
-    src: '/media/04-truck-dock.jpg',
-    tiny: '/media/04-truck-dock_tiny.jpg',
+    src: asset('media/04-truck-dock.jpg'),
+    tiny: asset('media/04-truck-dock_tiny.jpg'),
     title: 'Încărcare la rampă',
     meta: 'Plecare spre magazinele partenere',
     kind: 'reel',
   },
   {
     id: 'showroom',
-    src: '/media/05-showroom.jpg',
-    tiny: '/media/05-showroom_tiny.jpg',
+    src: asset('media/05-showroom.jpg'),
+    tiny: asset('media/05-showroom_tiny.jpg'),
     title: 'Marfa pe umeraș',
     meta: 'Cum arată un lot bun, sortat',
     kind: 'photo',
   },
   {
     id: 'open',
-    src: '/media/06-open-bale.jpg',
-    tiny: '/media/06-open-bale_tiny.jpg',
+    src: asset('media/06-open-bale.jpg'),
+    tiny: asset('media/06-open-bale_tiny.jpg'),
     title: 'Deschidem un sac',
     meta: 'Ce e înăuntru, la vedere',
     kind: 'photo',
   },
   {
     id: 'aerial',
-    src: '/media/07-aerial.jpg',
-    tiny: '/media/07-aerial_tiny.jpg',
+    src: asset('media/07-aerial.jpg'),
+    tiny: asset('media/07-aerial_tiny.jpg'),
     title: 'Depozitul de sus',
     meta: 'Stoc organizat pe categorii',
     kind: 'photo',
