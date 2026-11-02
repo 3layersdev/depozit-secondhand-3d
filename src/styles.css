@@ -1811,10 +1811,12 @@ body {
 /* sits on glass rather than closing the scene off                    */
 /* ---------------------------------------------------------------- */
 :root {
-  --glass: rgba(255, 253, 247, 0.3);
-  --glass-deep: rgba(246, 232, 213, 0.19);
-  --glass-edge: rgba(64, 40, 22, 0.19);
-  --frost: blur(40px) saturate(182%) brightness(1.05);
+  --glass: rgba(255, 253, 247, 0.15);
+  --glass-deep: rgba(246, 232, 213, 0.09);
+  --glass-edge: rgba(64, 40, 22, 0.21);
+  /* a light frost: enough to separate the copy from the film, thin enough
+     that the scene keeps moving behind the words */
+  --frost: blur(15px) saturate(152%) brightness(1.02);
 }
 
 .card,
@@ -1841,7 +1843,7 @@ body {
   background:
     radial-gradient(126% 108% at 20% -12%, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0) 56%),
     radial-gradient(88% 66% at 104% -4%, rgba(255, 210, 162, 0.26) 0%, rgba(255, 210, 162, 0) 62%),
-    linear-gradient(166deg, rgba(255, 253, 247, 0.46) 0%, rgba(246, 232, 213, 0.34) 100%);
+    linear-gradient(166deg, rgba(255, 253, 247, 0.27) 0%, rgba(246, 232, 213, 0.17) 100%);
 }
 
 /* the glass catches the light: one soft sheen, no milkiness */
@@ -1856,10 +1858,17 @@ body {
     linear-gradient(112deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.05) 24%, rgba(255, 255, 255, 0) 44%),
     radial-gradient(120% 58% at 50% 120%, rgba(122, 74, 38, 0.12) 0%, rgba(122, 74, 38, 0) 64%);
   mix-blend-mode: screen;
-  opacity: 0.9;
+  opacity: 0.62;
 }
 
-/* the copy keeps its contrast even over a bright sky frame */
+/* the copy keeps its contrast even over a bright sky frame: a soft halo does
+   the work a thicker pane used to do */
+.card,
+.panel--hero .reveal,
+.contact {
+  text-shadow: 0 0 14px rgba(255, 252, 246, 0.5);
+}
+
 .card > *,
 .panel--hero .reveal > * {
   position: relative;
@@ -1892,9 +1901,9 @@ body {
   .contact {
     background:
       radial-gradient(140% 90% at 50% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 62%),
-      linear-gradient(168deg, rgba(255, 252, 245, 0.74) 0%, rgba(250, 240, 226, 0.62) 100%);
-    -webkit-backdrop-filter: blur(22px) saturate(155%);
-    backdrop-filter: blur(22px) saturate(155%);
+      linear-gradient(168deg, rgba(255, 252, 245, 0.34) 0%, rgba(250, 240, 226, 0.24) 100%);
+    -webkit-backdrop-filter: blur(13px) saturate(148%);
+    backdrop-filter: blur(13px) saturate(148%);
   }
   .veil {
     background:

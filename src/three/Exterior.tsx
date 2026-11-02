@@ -302,6 +302,7 @@ function RollDoor({
 }) {
   const metal = useMemo(() => brushedMetalMaps([8, 1]), [])
   const curtain = useRef<THREE.Group>(null)
+  const bottomRail = useRef<THREE.Group>(null)
   const slatRefs = useRef<Array<THREE.Mesh | null>>([])
   const slatH = height / slats
 
@@ -317,6 +318,9 @@ function RollDoor({
       if (m) m.visible = inOpening
       if (inOpening) hanging++
     }
+    // the bottom rail and its handles travel with the curtain, so once they
+    // reach the head they are inside the drum, not floating over the body
+    if (bottomRail.current) bottomRail.current.visible = lift < height - slatH * 1.6
     if (width < 3) probe.slats = hanging
   })
 
@@ -354,7 +358,7 @@ function RollDoor({
         ))}
 
         {/* bottom bar with grab handles */}
-        <group position={[0, slatH * 0.45, 0.05]}>
+        <group ref={bottomRail} position={[0, slatH * 0.45, 0.05]}>
           <mesh castShadow>
             <boxGeometry args={[width, 0.13, 0.07]} />
             <meshStandardMaterial color="#9ba1a8" roughness={0.42} metalness={0.7} />
@@ -367,15 +371,6 @@ function RollDoor({
           ))}
         </group>
 
-        {/* lock rods, as on a real tail gate */}
-        {width > 2 ? (
-          [-1, 1].map((s) => (
-            <mesh key={s} position={[(s * (width / 2 - 0.16)), height / 2, 0.06]}>
-              <cylinderGeometry args={[0.022, 0.022, height * 0.97, 8]} />
-              <meshStandardMaterial color="#a8aeb5" roughness={0.35} metalness={0.8} />
-            </mesh>
-          ))
-        ) : null}
       </group>
 
       {/* drum the curtain rolls into */}
