@@ -125,9 +125,9 @@ function ExteriorLights({ progress }: { progress: ScrollRef }) {
 
   useFrame(() => {
     const p = progress.current.p
-    if (sun.current) sun.current.intensity = 3.3 * (1 - smoothstep(range(p, 0.3, 0.5)))
-    if (hemi.current) hemi.current.intensity = 0.55 * (1 - smoothstep(range(p, 0.35, 0.5)))
-    if (fill.current) fill.current.intensity = 12 + 26 * smoothstep(range(p, 0.28, 0.46))
+    if (sun.current) sun.current.intensity = 3.3 * (1 - smoothstep(range(p, 0.33, 0.5)))
+    if (hemi.current) hemi.current.intensity = 0.55 * (1 - smoothstep(range(p, 0.37, 0.5)))
+    if (fill.current) fill.current.intensity = 10 + 30 * smoothstep(range(p, 0.24, 0.44))
   })
 
   return (
@@ -149,7 +149,7 @@ function ExteriorLights({ progress }: { progress: ScrollRef }) {
       {/* cool rim from behind: separates the truck from the dark facade */}
       <directionalLight position={[-26, 14, -18]} intensity={0.95} color="#ffb877" />
       {/* warm bounce from the open dock */}
-      <pointLight ref={fill} position={[0, 2.4, 10]} intensity={12} distance={26} color="#ffb877" />
+      <pointLight ref={fill} position={[4.5, 3.0, -6]} intensity={12} distance={30} color="#ffb877" />
       <ambientLight intensity={0.34} color="#ffdcb8" />
     </group>
   )
@@ -178,8 +178,17 @@ function Grade() {
  *  film stays light enough. Inert without ?qa=1. */
 const QA = typeof window !== 'undefined' && new URLSearchParams(location.search).has('qa')
 
+/** QA-only: where the story anchors land in the frame, so a sweep can prove the
+ *  copy sits next to the thing it talks about. */
+const ANCHORS: Record<string, [number, number, number]> = {
+  bay: [9, 3.1, -13.05],
+  truckRear: [0, 1.7, 3.6],
+  truckMid: [0, 1.9, -0.2],
+}
+
 function QaProbe() {
-  const { gl, scene } = useThree()
+  const { gl, scene, camera } = useThree()
+  const v = useMemo(() => new THREE.Vector3(), [])
   const frames = useRef(0)
   const since = useRef(0)
   useFrame((_, dt) => {
@@ -191,6 +200,12 @@ function QaProbe() {
       if ((o as THREE.Mesh).isMesh) meshes++
     })
     const info = gl.info
+    const frame: Record<string, [number, number]> = {}
+    for (const [k, a] of Object.entries(ANCHORS)) {
+      v.set(a[0], a[1], a[2]).project(camera)
+      frame[k] = [Math.round(v.x * 100) / 100, Math.round(v.y * 100) / 100]
+    }
+    ;(window as unknown as { __frame?: object }).__frame = frame
     ;(window as unknown as { __stats?: object }).__stats = {
       fps: Math.round(frames.current / since.current),
       calls: info.render.calls,
@@ -213,10 +228,10 @@ export function Experience({ progress }: { progress: ScrollRef }) {
   useFrame(() => {
     const p = progress.current.p
     if (ext.current) ext.current.visible = p < SCENE_CUT + 0.002
-    // the tail gate follows the copy: it opens on the "ușa" chapter; the depot
-    // bays stay cracked open so warm light leaks into the yard
-    doorOpen.current = smoothstep(range(p, 0.3, 0.46))
-    whOpen.current = smoothstep(range(p, 0.05, 0.2)) * 0.3
+    // the trailer stays sealed; the shutter that climbs is the depot's, and it
+    // opens just as the camera finishes sliding past the truck
+    doorOpen.current = 0
+    whOpen.current = 0.24 + 0.76 * smoothstep(range(p, 0.2, 0.42))
   })
 
   return (

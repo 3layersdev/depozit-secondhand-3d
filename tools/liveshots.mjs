@@ -1,0 +1,12 @@
+import puppeteer from 'puppeteer-core'
+const [base,p,tag]=process.argv.slice(2)
+const b=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',headless:'shell',args:['--no-sandbox','--disable-dev-shm-usage','--hide-scrollbars','--enable-unsafe-swiftshader']})
+const pg=await b.newPage(); await pg.setViewport({width:1280,height:800})
+await pg.goto(base+'?qa=1',{waitUntil:'domcontentloaded'})
+await new Promise(r=>setTimeout(r,7000))
+const y=await pg.evaluate(f=>Math.round((document.documentElement.scrollHeight-innerHeight)*f),+p)
+await pg.evaluate(v=>window.scrollTo(0,v),y)
+await new Promise(r=>setTimeout(r,3500))
+await pg.screenshot({path:`shots3/${tag}.png`})
+console.log(tag, await pg.evaluate(()=>document.documentElement.dataset.p))
+await b.close()

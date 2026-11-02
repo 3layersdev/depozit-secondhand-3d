@@ -41,24 +41,31 @@ export function damp(current: number, target: number, lambda: number, dt: number
 }
 
 /* ---------- exterior camera path ---------- */
+/* The truck arrives and stops at the ramp; the camera then slides down its
+   right flank and settles in front of the bay whose shutter rolls up, so the
+   chapter about the depot door lands on the depot door, not on the trailer. */
 export const EXT_CAM: Stop[] = [
   { p: 0.0, v: [27, 12, 54] },
-  { p: 0.1, v: [20, 8.6, 41] },
-  { p: 0.2, v: [11, 6.0, 29] },
-  { p: 0.3, v: [3.4, 3.7, 20] },
-  { p: 0.38, v: [2.4, 2.9, 15.8] },
-  { p: 0.45, v: [1.1, 2.55, 13.0] },
-  { p: 0.5, v: [0.4, 2.4, 11.4] },
+  { p: 0.09, v: [21.5, 9.2, 42.5] },
+  { p: 0.17, v: [15.2, 6.6, 30.5] },
+  { p: 0.24, v: [11.8, 4.6, 20.6] },
+  { p: 0.3, v: [10.4, 3.5, 13.4] },
+  { p: 0.36, v: [9.7, 2.95, 7.0] },
+  { p: 0.42, v: [9.2, 2.68, 1.2] },
+  { p: 0.455, v: [9.0, 2.58, -4.2] },
+  { p: 0.5, v: [9.0, 2.52, -9.4] },
 ]
 
 export const EXT_TGT: Stop[] = [
   { p: 0.0, v: [3, 5.0, -2] },
-  { p: 0.1, v: [1, 4.2, 0] },
-  { p: 0.2, v: [0, 3.2, 5] },
-  { p: 0.3, v: [0, 2.7, 8.4] },
-  { p: 0.38, v: [0, 2.45, 8.7] },
-  { p: 0.45, v: [0, 2.3, 8.8] },
-  { p: 0.5, v: [0, 2.2, 7] },
+  { p: 0.09, v: [4, 4.4, -1] },
+  { p: 0.17, v: [6, 3.6, -2] },
+  { p: 0.24, v: [6.8, 3.0, -3.2] },
+  { p: 0.3, v: [7.2, 2.75, -5] },
+  { p: 0.36, v: [8.4, 2.6, -8.4] },
+  { p: 0.42, v: [9, 2.5, -11.6] },
+  { p: 0.455, v: [9, 2.4, -14] },
+  { p: 0.5, v: [9, 2.35, -16] },
 ]
 
 /* ---------- interior camera path ---------- */

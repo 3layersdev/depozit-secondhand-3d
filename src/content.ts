@@ -41,8 +41,8 @@ export const brand = {
 
 export const hero = {
   eyebrow: 'Import direct · exclusiv Anglia',
-  title: ['Deschide', 'ușa', 'camionului.'],
-  text: 'Haine second-hand originale din Anglia, vândute exclusiv la sac de 20–25 kg. Marfa e sortată pe calități și pleacă din depozitul nostru din București. Scroll pentru a intra în depozit.',
+  title: ['Deschide', 'ușa', 'depozitului.'],
+  text: 'Haine second-hand originale din Anglia, vândute exclusiv la sac de 20–25 kg. Camionul e la rampă, marfa e sortată pe calități. Scroll: trecem pe lângă camion și ridicăm oblonul halei.',
   stats: [
     { value: '3,5K', label: 'urmași pe Facebook' },
     { value: '20–25 kg', label: 'sacul standard' },
@@ -54,14 +54,14 @@ export const chapters = [
   {
     id: 'intro',
     label: 'Intro',
-    title: 'Camionul intră în curte',
-    text: 'Marfa vine originală din Anglia, pe palet, cu acte. Fiecare transport intră în depozit și se sortează pe calități.',
+    title: 'Camionul trage la rampă',
+    text: 'Marfa vine originală din Anglia, pe palet, cu acte. Treci pe lângă el până la ușa halei, acolo unde sacii se descarcă și se sortează.',
   },
   {
     id: 'door',
-    label: 'Ușa',
-    title: 'Ridicăm oblonul',
-    text: 'Saci transparenți de 20–25 kg, etichetați pe calitate și categorie. Îi poți deschide în depozit, înainte să cumperi.',
+    label: 'Depozit',
+    title: 'Ridicăm oblonul depozitului',
+    text: 'Se deschide hala: saci transparenți de 20–25 kg, etichetați pe calitate și categorie. Îi poți deschide în depozit, înainte să cumperi.',
   },
   {
     id: 'services',

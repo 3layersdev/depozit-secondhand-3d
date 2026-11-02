@@ -41,7 +41,7 @@ export function Header() {
 const RAIL = [
   { id: 'depozit', label: 'Intro', at: 0 },
   { id: 'sosire', label: 'Sosire', at: 0.16 },
-  { id: 'usa', label: 'Ușa', at: 0.32 },
+  { id: 'usa', label: 'Depozit', at: 0.32 },
   { id: 'servicii', label: 'Servicii', at: 0.484 },
   { id: 'calitate', label: 'Calitate', at: 0.64 },
   { id: 'galerie', label: 'Galerie', at: 0.77 },
@@ -148,7 +148,7 @@ export function HeroSection() {
 
 export function TruckSection() {
   return (
-    <Chapter id="sosire" index="01" label="Sosirea" title="Camionul intră în curte" align="right">
+    <Chapter id="sosire" index="01" label="Sosirea" title="Camionul trage la rampă" align="right">
       <p className="lede">{chapters[0].text}</p>
       <div className="svc">
         <div className="svc__row" style={{ borderTop: 0 }}>
@@ -174,7 +174,7 @@ export function TruckSection() {
 
 export function DoorSection() {
   return (
-    <Chapter id="usa" index="02" label="Ușa" title="Ridicăm oblonul">
+    <Chapter id="usa" index="02" label="Depozit" title="Ridicăm oblonul depozitului" align="right">
       <p className="lede">{chapters[1].text}</p>
       <div className="steps">
         {steps.map((s) => (
@@ -198,7 +198,7 @@ const TAGS: Record<string, string> = {
 
 export function ServicesSection() {
   return (
-    <Chapter id="servicii" index="03" label="Servicii" title={chapters[2].title}>
+    <Chapter id="servicii" index="03" label="Servicii" title={chapters[2].title} align="right">
       <p className="lede">{chapters[2].text}</p>
       <div className="svc">
         {services.map((s) => (
@@ -258,7 +258,7 @@ export function QualitySection() {
 
 export function GallerySection({ onOpen }: { onOpen: (index: number) => void }) {
   return (
-    <Chapter id="galerie" index="05" label="Galerie" title={chapters[4].title}>
+    <Chapter id="galerie" index="05" label="Galerie" title={chapters[4].title} align="right">
       <p className="lede">{chapters[4].text}</p>
       <div className="thumbs">
         {gallery.map((g, i) => (

@@ -180,6 +180,15 @@ export function Yard() {
 /* ------------------------------------------------------------------ */
 
 export function Warehouse({ open }: { open: React.RefObject<number> }) {
+  // the camera only ever approaches the right-hand bay, so that is the one the
+  // film opens; the other stays cracked and keeps leaking light into the yard
+  const idleBay = useRef(0.26)
+  const glowRef = useRef<THREE.SpriteMaterial>(null)
+  useFrame(() => {
+    const o = THREE.MathUtils.clamp(open.current ?? 0, 0, 1)
+    probe.bay = o
+    if (glowRef.current) glowRef.current.opacity = 0.16 + 0.52 * o
+  })
   const corrugated = useMemo(() => claddingMaps([7, 2.4]), [])
   const sign = useMemo(() => signTexture(), [])
   const glow = useMemo(() => glowTexture(), [])
@@ -224,7 +233,14 @@ export function Warehouse({ open }: { open: React.RefObject<number> }) {
             <meshStandardMaterial color="#16181b" roughness={0.95} />
           </mesh>
           {/* rolling shutter: sectional curtain that climbs into the drum */}
-          <RollDoor open={open} width={6.2} height={6.2} slats={16} tint="#a9adb3" position={[0, 0, -13.05]} />
+          <RollDoor
+            open={x > 0 ? open : idleBay}
+            width={6.2}
+            height={6.2}
+            slats={16}
+            tint="#a9adb3"
+            position={[0, 0, -13.05]}
+          />
           {/* frame */}
           {[-3.3, 3.3].map((fx) => (
             <mesh key={fx} position={[fx, 3.1, -12.9]} castShadow>
@@ -232,9 +248,16 @@ export function Warehouse({ open }: { open: React.RefObject<number> }) {
               <meshStandardMaterial color="#22262b" roughness={0.6} metalness={0.5} />
             </mesh>
           ))}
-          {/* warm light spill */}
+          {/* warm light spill: it brightens as the shutter climbs */}
           <sprite position={[0, 2.2, -10.4]} scale={[14, 9, 1]}>
-            <spriteMaterial map={glow} color="#ffb066" transparent opacity={0.22} depthWrite={false} />
+            <spriteMaterial
+              ref={x > 0 ? glowRef : undefined}
+              map={glow}
+              color="#ffb066"
+              transparent
+              opacity={0.22}
+              depthWrite={false}
+            />
           </sprite>
           {/* dock lamp */}
           <mesh position={[0, 8.0, -9.4]}>
@@ -269,7 +292,7 @@ export function Warehouse({ open }: { open: React.RefObject<number> }) {
 /* ------------------------------------------------------------------ */
 
 /** Written every frame; published on window only when the URL has ?qa=1. */
-const probe = { door: 0, slats: 0, truckX: 0, truckZ: 0, heading: 0 }
+const probe = { door: 0, bay: 0, slats: 0, truckX: 0, truckZ: 0, heading: 0 }
 
 /* ------------------------------------------------------------------ */
 /* Box truck                                                           */
