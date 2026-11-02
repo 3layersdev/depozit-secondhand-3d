@@ -1,0 +1,10 @@
+import puppeteer from 'puppeteer-core'
+const b=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',headless:'shell',args:['--no-sandbox','--disable-dev-shm-usage']})
+const pg=await b.newPage()
+pg.on('requestfailed',r=>console.log('FAIL',r.url()))
+pg.on('response',r=>{if(r.status()>=400)console.log(r.status(),r.url())})
+pg.on('pageerror',e=>console.log('ERR',e.message))
+await pg.goto(process.argv[2],{waitUntil:'domcontentloaded'})
+await new Promise(r=>setTimeout(r,6000))
+console.log('mounted', await pg.evaluate(()=>document.body.innerHTML.length))
+await b.close()

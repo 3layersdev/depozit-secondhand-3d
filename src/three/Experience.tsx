@@ -20,6 +20,16 @@ import {
 
 const DARK = new THREE.Color('#241610')
 
+/** ?cam=x,y,z&tgt=x,y,z freezes the camera for a still frame (QA only). */
+const CAM_OVERRIDE = (() => {
+  if (typeof window === 'undefined') return null
+  const q = new URLSearchParams(location.search)
+  const c = q.get('cam')
+  const t = q.get('tgt')
+  if (!c || !t) return null
+  return { c: c.split(',').map(Number), t: t.split(',').map(Number) }
+})()
+
 function Rig({ progress }: { progress: ScrollRef }) {
   const { camera, size } = useThree()
   const smooth = useRef(0)
@@ -62,6 +72,12 @@ function Rig({ progress }: { progress: ScrollRef }) {
 
     camera.position.lerp(pos, 0.65)
     look.lerp(tgt, 0.5)
+    if (CAM_OVERRIDE) {
+      camera.position.set(CAM_OVERRIDE.c[0], CAM_OVERRIDE.c[1], CAM_OVERRIDE.c[2])
+      camera.lookAt(CAM_OVERRIDE.t[0], CAM_OVERRIDE.t[1], CAM_OVERRIDE.t[2])
+      camera.updateProjectionMatrix()
+      return
+    }
     camera.lookAt(look)
 
     const cam = camera as THREE.PerspectiveCamera
@@ -157,6 +173,38 @@ function Grade() {
   )
 }
 
+
+/** QA-only: publishes frame rate and scene weight so a sweep can prove the
+ *  film stays light enough. Inert without ?qa=1. */
+const QA = typeof window !== 'undefined' && new URLSearchParams(location.search).has('qa')
+
+function QaProbe() {
+  const { gl, scene } = useThree()
+  const frames = useRef(0)
+  const since = useRef(0)
+  useFrame((_, dt) => {
+    frames.current++
+    since.current += dt
+    if (since.current < 1) return
+    let meshes = 0
+    scene.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh) meshes++
+    })
+    const info = gl.info
+    ;(window as unknown as { __stats?: object }).__stats = {
+      fps: Math.round(frames.current / since.current),
+      calls: info.render.calls,
+      tris: info.render.triangles,
+      meshes,
+      geometries: info.memory.geometries,
+      textures: info.memory.textures,
+    }
+    frames.current = 0
+    since.current = 0
+  })
+  return null
+}
+
 export function Experience({ progress }: { progress: ScrollRef }) {
   const ext = useRef<THREE.Group>(null)
   const doorOpen = useRef(0)
@@ -173,6 +221,7 @@ export function Experience({ progress }: { progress: ScrollRef }) {
 
   return (
     <>
+      {QA && <QaProbe />}
       <Atmosphere progress={progress} />
       <Rig progress={progress} />
       <ExteriorLights progress={progress} />

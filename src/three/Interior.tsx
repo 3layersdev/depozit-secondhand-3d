@@ -4,11 +4,13 @@ import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import { Bales, stack } from './Exterior'
 import {
+  cardboardTexture,
   garmentPalette,
   glowTexture,
   panelTexture,
   signTexture,
   wallTitleTexture,
+  woodTexture,
 } from './textures'
 import { gallery, grades, services } from '../content'
 import { concreteMaps, claddingMaps } from './materials'
@@ -167,37 +169,141 @@ function GarmentRack({ position, count = 14 }: { position: [number, number, numb
   )
 }
 
+/**
+ * A sorting bench the way the hall really has them: welded steel frame with a
+ * lower shelf, a thick timber top, stacks of folded garments, a bench scale,
+ * a clipboard and cartons pushed underneath.
+ */
 function SortingTable({ position, items = 9 }: { position: [number, number, number]; items?: number }) {
+  const wood = useMemo(() => woodTexture(), [])
+  const card = useMemo(() => cardboardTexture(), [])
+
   const piles = useMemo(
     () =>
       Array.from({ length: items }, () => ({
-        x: (Math.random() - 0.5) * 3.4,
-        z: (Math.random() - 0.5) * 1.0,
-        h: 0.1 + Math.random() * 0.22,
+        x: (Math.random() - 0.5) * 3.1,
+        z: (Math.random() - 0.5) * 0.85,
+        yaw: (Math.random() - 0.5) * 0.5,
+        layers: 3 + Math.floor(Math.random() * 4),
         c: RACK_COLORS[Math.floor(Math.random() * RACK_COLORS.length)],
       })),
     [items],
   )
+
+  const steel = '#414952'
+  const topY = 0.9
+
   return (
     <group position={position}>
-      <mesh position={[0, 0.86, 0]} castShadow receiveShadow>
-        <boxGeometry args={[4.2, 0.08, 1.5]} />
-        <meshStandardMaterial color="#b9bcc0" roughness={0.5} metalness={0.25} />
-      </mesh>
-      {[-1.9, 1.9].map((x) =>
-        [-0.6, 0.6].map((z) => (
-          <mesh key={`${x}${z}`} position={[x, 0.43, z]}>
-            <boxGeometry args={[0.07, 0.86, 0.07]} />
-            <meshStandardMaterial color="#4a4f55" roughness={0.6} metalness={0.4} />
+      {/* legs with feet */}
+      {[-1, 1].map((sx) =>
+        [-1, 1].map((sz) => (
+          <group key={`${sx}${sz}`} position={[sx * 2.0, 0, sz * 0.66]}>
+            <mesh position={[0, 0.45, 0]} castShadow>
+              <boxGeometry args={[0.085, 0.9, 0.085]} />
+              <meshStandardMaterial color={steel} roughness={0.52} metalness={0.55} />
+            </mesh>
+            <mesh position={[0, 0.015, 0]}>
+              <boxGeometry args={[0.17, 0.03, 0.17]} />
+              <meshStandardMaterial color="#2c3138" roughness={0.6} metalness={0.5} />
+            </mesh>
+          </group>
+        )),
+      )}
+
+      {/* rails: long ones at the top and a lower shelf frame */}
+      {[-1, 1].map((sz) =>
+        [0.28, 0.82].map((y) => (
+          <mesh key={`r${sz}${y}`} position={[0, y, sz * 0.66]}>
+            <boxGeometry args={[4.0, 0.05, 0.05]} />
+            <meshStandardMaterial color={steel} roughness={0.55} metalness={0.5} />
           </mesh>
         )),
       )}
+      {[-1, 1].map((sx) =>
+        [0.28, 0.82].map((y) => (
+          <mesh key={`c${sx}${y}`} position={[sx * 2.0, y, 0]}>
+            <boxGeometry args={[0.05, 0.05, 1.28]} />
+            <meshStandardMaterial color={steel} roughness={0.55} metalness={0.5} />
+          </mesh>
+        )),
+      )}
+
+      {/* lower shelf for stock */}
+      <mesh position={[0, 0.3, 0]} receiveShadow>
+        <boxGeometry args={[3.94, 0.045, 1.24]} />
+        <meshStandardMaterial map={wood} color="#8e7350" roughness={0.88} metalness={0.04} />
+      </mesh>
+
+      {/* timber worktop with a steel edge band */}
+      <mesh position={[0, topY, 0]} castShadow receiveShadow>
+        <boxGeometry args={[4.26, 0.11, 1.56]} />
+        <meshStandardMaterial map={wood} roughness={0.82} metalness={0.03} />
+      </mesh>
+      <mesh position={[0, topY - 0.055, 0]}>
+        <boxGeometry args={[4.3, 0.04, 1.6]} />
+        <meshStandardMaterial color="#5c646d" roughness={0.5} metalness={0.55} />
+      </mesh>
+
+      {/* folded garments: each pile is a real stack of layers */}
       {piles.map((p, i) => (
-        <mesh key={i} position={[p.x, 0.9 + p.h / 2, p.z]} rotation={[0, Math.random(), 0]}>
-          <boxGeometry args={[0.34, p.h, 0.26]} />
-          <meshStandardMaterial color={p.c} roughness={0.9} />
+        <group key={i} position={[p.x, topY + 0.056, p.z]} rotation={[0, p.yaw, 0]}>
+          {Array.from({ length: p.layers }).map((_, l) => (
+            <mesh
+              key={l}
+              position={[(Math.random() - 0.5) * 0.035, 0.026 + l * 0.052, (Math.random() - 0.5) * 0.03]}
+              rotation={[0, (Math.random() - 0.5) * 0.12, 0]}
+              castShadow
+            >
+              <boxGeometry args={[0.42 - l * 0.006, 0.05, 0.32 - l * 0.004]} />
+              <meshStandardMaterial color={p.c} roughness={0.94} metalness={0} />
+            </mesh>
+          ))}
+          {/* the top item sitting slightly askew, as it lands off the pile */}
+          <mesh position={[0.02, 0.028 + p.layers * 0.052, 0]} rotation={[0, 0.22, 0.02]}>
+            <boxGeometry args={[0.36, 0.036, 0.28]} />
+            <meshStandardMaterial color={RACK_COLORS[(i + 3) % RACK_COLORS.length]} roughness={0.92} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* bench scale */}
+      <group position={[1.5, topY + 0.056, -0.42]} rotation={[0, -0.24, 0]}>
+        <mesh position={[0, 0.03, 0]} castShadow>
+          <boxGeometry args={[0.32, 0.06, 0.38]} />
+          <meshStandardMaterial color="#2a2f35" roughness={0.6} metalness={0.35} />
+        </mesh>
+        <mesh position={[0, 0.07, 0]}>
+          <boxGeometry args={[0.28, 0.022, 0.34]} />
+          <meshStandardMaterial color="#9aa1a8" roughness={0.34} metalness={0.75} />
+        </mesh>
+        <mesh position={[0, 0.075, 0.13]}>
+          <boxGeometry args={[0.13, 0.006, 0.06]} />
+          <meshStandardMaterial color="#7fe0a8" emissive="#39c47f" emissiveIntensity={1.6} roughness={0.4} />
+        </mesh>
+      </group>
+
+      {/* clipboard left on the bench */}
+      <mesh position={[-1.55, topY + 0.062, 0.34]} rotation={[0, 0.4, 0]} castShadow>
+        <boxGeometry args={[0.3, 0.012, 0.4]} />
+        <meshStandardMaterial color="#d8d2c4" roughness={0.9} />
+      </mesh>
+
+      {/* cartons and a plastic bin underneath */}
+      {[
+        { x: -1.15, z: 0, w: 0.62, h: 0.42, d: 0.44, y: 0.155 },
+        { x: -0.4, z: 0.06, w: 0.54, h: 0.34, d: 0.4, y: 0.12 },
+        { x: 0.62, z: -0.05, w: 0.58, h: 0.38, d: 0.42, y: 0.135 },
+      ].map((b, i) => (
+        <mesh key={`box${i}`} position={[b.x, b.y, b.z]} rotation={[0, (Math.random() - 0.5) * 0.16, 0]} castShadow receiveShadow>
+          <boxGeometry args={[b.w, b.h, b.d]} />
+          <meshStandardMaterial map={card} color="#c9a071" roughness={0.95} />
         </mesh>
       ))}
+      <mesh position={[1.45, 0.19, 0.02]} castShadow>
+        <boxGeometry args={[0.46, 0.34, 0.38]} />
+        <meshStandardMaterial color="#2f5d86" roughness={0.72} metalness={0.05} />
+      </mesh>
     </group>
   )
 }

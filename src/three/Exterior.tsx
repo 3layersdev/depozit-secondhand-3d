@@ -576,26 +576,104 @@ export function Truck({
           </mesh>
         ))}
 
-        {/* rear frame: four bars around the opening, so the bay stays open */}
-        {[
-          { pos: [0, bodyH / 2 - 0.06, bodyL / 2 + 0.02], size: [bodyW, 0.16, 0.1] as const },
-          { pos: [0, -bodyH / 2 + 0.07, bodyL / 2 + 0.02], size: [bodyW, 0.16, 0.12] as const },
-          { pos: [-(bodyW / 2 - 0.07), 0, bodyL / 2 + 0.02], size: [0.16, bodyH, 0.1] as const },
-          { pos: [bodyW / 2 - 0.07, 0, bodyL / 2 + 0.02], size: [0.16, bodyH, 0.1] as const },
-        ].map((b, i) => (
-          <mesh key={`rf${i}`} position={b.pos as [number, number, number]} castShadow>
-            <boxGeometry args={b.size as unknown as [number, number, number]} />
-            <meshStandardMaterial color="#2b2f34" roughness={0.78} metalness={0.24} />
-          </mesh>
-        ))}
-        {/* tail gate: real slatted roll-up door */}
+        {/* rear opening: built the way a box body really is — rails and
+            stiles around a cut hole, a frame with actual depth and mitred
+            corner caps, guide tracks for the curtain and a drum housing */}
+        {(() => {
+          const openW = bodyW - 0.46
+          const openH = bodyH - 0.54
+          const railH = (bodyH - openH) / 2
+          const stileW = (bodyW - openW) / 2
+          const zSkin = bodyL / 2 - 0.05
+          const zFrame = bodyL / 2 + 0.02
+          const skin = (
+            <meshStandardMaterial
+              map={paint.map}
+              normalMap={paint.normalMap}
+              roughnessMap={paint.roughnessMap}
+              color="#f2f4f7"
+              roughness={0.44}
+              metalness={0.22}
+              envMapIntensity={1.1}
+            />
+          )
+          const steel = <meshStandardMaterial color="#2b2f34" roughness={0.62} metalness={0.45} />
+          const bars = [
+            { pos: [0, openH / 2 + railH / 2, zFrame], size: [bodyW, railH, 0.14] },
+            { pos: [0, -openH / 2 - railH / 2, zFrame], size: [bodyW, railH, 0.16] },
+            { pos: [-openW / 2 - stileW / 2, 0, zFrame], size: [stileW, openH, 0.14] },
+            { pos: [openW / 2 + stileW / 2, 0, zFrame], size: [stileW, openH, 0.14] },
+          ] as const
+          return (
+            <group>
+              {/* skin around the cut hole */}
+              <mesh position={[0, openH / 2 + railH / 2, zSkin]} castShadow receiveShadow>
+                <boxGeometry args={[bodyW, railH, 0.07]} />
+                {skin}
+              </mesh>
+              <mesh position={[0, -openH / 2 - railH / 2, zSkin]} castShadow receiveShadow>
+                <boxGeometry args={[bodyW, railH, 0.07]} />
+                {skin}
+              </mesh>
+              {[-1, 1].map((sd) => (
+                <mesh key={`st${sd}`} position={[(sd * (openW / 2 + stileW / 2)), 0, zSkin]} castShadow receiveShadow>
+                  <boxGeometry args={[stileW, openH, 0.07]} />
+                  {skin}
+                </mesh>
+              ))}
+
+              {/* frame: four bars with real depth, so the opening reads as a hole */}
+              {bars.map((b, i) => (
+                <mesh key={`rf${i}`} position={b.pos as unknown as [number, number, number]} castShadow>
+                  <boxGeometry args={b.size as unknown as [number, number, number]} />
+                  {steel}
+                </mesh>
+              ))}
+
+              {/* mitred corner caps on the four joints */}
+              {[
+                [-openW / 2, openH / 2],
+                [openW / 2, openH / 2],
+                [-openW / 2, -openH / 2],
+                [openW / 2, -openH / 2],
+              ].map(([cx, cy], i) => (
+                <mesh key={`cap${i}`} position={[cx, cy, zFrame]} rotation={[0, 0, Math.PI / 4]} castShadow>
+                  <boxGeometry args={[0.17, 0.17, 0.16]} />
+                  {steel}
+                </mesh>
+              ))}
+
+              {/* guide tracks the curtain runs in */}
+              {[-1, 1].map((sd) => (
+                <mesh key={`tr${sd}`} position={[(sd * openW) / 2, 0, bodyL / 2 - 0.02]}>
+                  <boxGeometry args={[0.05, openH - 0.02, 0.11]} />
+                  <meshStandardMaterial color="#1b1e22" roughness={0.85} metalness={0.35} />
+                </mesh>
+              ))}
+
+              {/* drum housing under the roof, so the rolled curtain has a home */}
+              <mesh position={[0, openH / 2 + 0.12, bodyL / 2 - 0.16]} castShadow>
+                <boxGeometry args={[openW + 0.2, 0.34, 0.3]} />
+                <meshStandardMaterial color="#d9dee3" roughness={0.5} metalness={0.3} />
+              </mesh>
+
+              {/* threshold plate at the sill */}
+              <mesh position={[0, -openH / 2 + 0.015, bodyL / 2 - 0.12]} receiveShadow>
+                <boxGeometry args={[openW - 0.06, 0.03, 0.26]} />
+                <meshStandardMaterial color="#6f757b" roughness={0.55} metalness={0.55} />
+              </mesh>
+            </group>
+          )
+        })()}
+
+        {/* tail gate: real slatted roll-up door, sized to the opening */}
         <RollDoor
           open={doorOpen}
-          width={bodyW - 0.3}
-          height={bodyH - 0.26}
+          width={bodyW - 0.5}
+          height={bodyH - 0.58}
           slats={11}
           tint="#c3c6c8"
-          position={[0, -bodyH / 2, bodyL / 2 + 0.1]}
+          position={[0, -(bodyH - 0.58) / 2 + 0.02, bodyL / 2 + 0.08]}
         />
 
         {/* interior warm light + glow */}

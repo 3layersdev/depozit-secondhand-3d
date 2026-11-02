@@ -375,3 +375,62 @@ export function garmentPalette() {
     '#b5b9bd', '#1f242b', '#a8552f', '#d9cbb2', '#41586e', '#6b2f3a',
   ]
 }
+
+/** Worn timber for sorting benches: planks, grain, a few stains */
+export function woodTexture() {
+  const { c, ctx } = make(512, 512)
+  ctx.fillStyle = '#b98f5e'
+  ctx.fillRect(0, 0, 512, 512)
+  const planks = 5
+  const ph = 512 / planks
+  for (let p = 0; p < planks; p++) {
+    const tone = 0.86 + Math.random() * 0.26
+    ctx.fillStyle = `rgb(${Math.round(185 * tone)},${Math.round(143 * tone)},${Math.round(94 * tone)})`
+    ctx.fillRect(0, p * ph, 512, ph)
+    // grain
+    for (let i = 0; i < 90; i++) {
+      const y = p * ph + Math.random() * ph
+      ctx.strokeStyle = `rgba(90, 58, 30, ${0.04 + Math.random() * 0.1})`
+      ctx.lineWidth = 0.6 + Math.random() * 1.4
+      ctx.beginPath()
+      ctx.moveTo(0, y)
+      for (let x = 0; x <= 512; x += 32) {
+        ctx.lineTo(x, y + Math.sin((x + i * 13) * 0.02) * (1.5 + Math.random() * 1.6))
+      }
+      ctx.stroke()
+    }
+    // plank seam
+    ctx.fillStyle = 'rgba(48, 30, 14, 0.5)'
+    ctx.fillRect(0, p * ph, 512, 2)
+    // knots
+    if (Math.random() > 0.5) {
+      const kx = Math.random() * 512
+      const ky = p * ph + ph * (0.3 + Math.random() * 0.4)
+      const g = ctx.createRadialGradient(kx, ky, 0, kx, ky, 9)
+      g.addColorStop(0, 'rgba(70, 42, 18, 0.55)')
+      g.addColorStop(1, 'rgba(70, 42, 18, 0)')
+      ctx.fillStyle = g
+      ctx.beginPath()
+      ctx.arc(kx, ky, 9, 0, Math.PI * 2)
+      ctx.fill()
+    }
+  }
+  noise(ctx, 512, 512, 22, 0.05)
+  return toTexture(c, [2, 1])
+}
+
+/** Cardboard for cartons stacked under the benches */
+export function cardboardTexture() {
+  const { c, ctx } = make(256, 256)
+  ctx.fillStyle = '#a97f52'
+  ctx.fillRect(0, 0, 256, 256)
+  for (let i = 0; i < 240; i++) {
+    ctx.fillStyle = `rgba(${120 + Math.random() * 40},${90 + Math.random() * 30},${52 + Math.random() * 24},0.14)`
+    ctx.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 26, 1 + Math.random() * 3)
+  }
+  // packing tape band
+  ctx.fillStyle = 'rgba(214, 196, 160, 0.5)'
+  ctx.fillRect(0, 116, 256, 22)
+  noise(ctx, 256, 256, 16, 0.05)
+  return toTexture(c, [1, 1])
+}

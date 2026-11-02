@@ -227,7 +227,11 @@ export function useScrollSnap() {
       settle = window.setTimeout(() => {
         if (animating) return
         measure()
-        const vertical = Math.abs(dy) >= 28 && Math.abs(dy) > Math.abs(dx)
+        // a real finger moves the page a lot more reliably than it reports its
+        // own delta, so the travelled distance decides, not the touch maths
+        const travelled = window.scrollY - touchStartScroll
+        const vertical =
+          Math.abs(travelled) > 40 || (Math.abs(dy) >= 28 && Math.abs(dy) > Math.abs(dx))
         const anchor = vertical ? touchStartScroll : window.scrollY
         if (!vertical) {
           const near = stops.reduce((a, c) => (Math.abs(c - anchor) < Math.abs(a - anchor) ? c : a), stops[0])
@@ -235,8 +239,9 @@ export function useScrollSnap() {
           return
         }
         const edge = 8
+        const forward = travelled !== 0 ? travelled > 0 : dy > 0
         const target =
-          dy > 0
+          forward
             ? stops.find((s) => s > anchor + edge) ?? stops[stops.length - 1]
             : [...stops].reverse().find((s) => s < anchor - edge) ?? 0
         if (Math.abs(target - window.scrollY) > 12) animateTo(target)
