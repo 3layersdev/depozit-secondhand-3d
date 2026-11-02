@@ -182,7 +182,7 @@ a {
 }
 
 .header__nav a {
-  padding: 9px 14px;
+  padding: 11px 14px;
   border-radius: 999px;
   font-size: 13px;
   letter-spacing: 0.02em;
@@ -238,7 +238,7 @@ a {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  padding: 6px 4px;
+  padding: 9px 4px;
   background: none;
   border: 0;
   cursor: pointer;

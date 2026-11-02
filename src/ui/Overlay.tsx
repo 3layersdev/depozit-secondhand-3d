@@ -114,7 +114,7 @@ export function HeroSection() {
     <section className="panel panel--hero" id="depozit">
       <div className="reveal is-visible" style={{ width: 'min(760px, 100%)' }}>
         <p className="eyebrow">{hero.eyebrow}</p>
-        <h1 className="h1">
+        <h1 className="h1" aria-label={hero.title.join(' ')}>
           {hero.title.map((line) => (
             <span key={line}>{line}</span>
           ))}
