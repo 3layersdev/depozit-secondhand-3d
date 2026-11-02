@@ -4,10 +4,9 @@ import { useFrame } from '@react-three/fiber'
 import {
   baleLabelTexture,
   glowTexture,
-  shutterTexture,
   signTexture,
 } from './textures'
-import { asphaltMaps, baleMaps, claddingMaps } from './materials'
+import { asphaltMaps, baleMaps, brushedMetalMaps, chassisMaps, claddingMaps, vehiclePaintMaps } from './materials'
 import { TruckDetails, WarehouseDetails, YardDetails } from './details'
 import { range, smoothstep, type ScrollRef } from './sequence'
 
@@ -182,24 +181,8 @@ export function Yard() {
 
 export function Warehouse({ open }: { open: React.RefObject<number> }) {
   const corrugated = useMemo(() => claddingMaps([7, 2.4]), [])
-  const shutter = useMemo(() => shutterTexture(), [])
   const sign = useMemo(() => signTexture(), [])
   const glow = useMemo(() => glowTexture(), [])
-  const shutterL = useRef<THREE.Group>(null)
-  const shutterR = useRef<THREE.Group>(null)
-
-  useFrame(() => {
-    const o = open.current ?? 0
-    if (shutterL.current) {
-      shutterL.current.scale.y = Math.max(0.02, 1 - o)
-      shutterL.current.position.y = o * 6.2
-    }
-    if (shutterR.current) {
-      shutterR.current.scale.y = Math.max(0.02, 1 - o)
-      shutterR.current.position.y = o * 6.2
-    }
-  })
-
   return (
     <group position={[0, 0, 0]}>
       {/* main wall */}
@@ -240,18 +223,8 @@ export function Warehouse({ open }: { open: React.RefObject<number> }) {
             <planeGeometry args={[6.4, 6.2]} />
             <meshStandardMaterial color="#16181b" roughness={0.95} />
           </mesh>
-          {/* shutter drum */}
-          <mesh position={[0, 6.35, -13.1]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.34, 0.34, 6.2, 14]} />
-            <meshStandardMaterial color="#7a7f86" roughness={0.5} metalness={0.6} />
-          </mesh>
-          {/* rolling shutter */}
-          <group position={[0, 0, -13.05]} ref={x < 0 ? shutterL : shutterR}>
-            <mesh position={[0, 3.1, 0]}>
-              <planeGeometry args={[6.2, 6.2]} />
-              <meshStandardMaterial map={shutter} color="#a7abb1" roughness={0.55} metalness={0.5} />
-            </mesh>
-          </group>
+          {/* rolling shutter: sectional curtain that climbs into the drum */}
+          <RollDoor open={open} width={6.2} height={6.2} slats={16} tint="#a9adb3" position={[0, 0, -13.05]} />
           {/* frame */}
           {[-3.3, 3.3].map((fx) => (
             <mesh key={fx} position={[fx, 3.1, -12.9]} castShadow>
@@ -292,66 +265,230 @@ export function Warehouse({ open }: { open: React.RefObject<number> }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* QA probe                                                            */
+/* ------------------------------------------------------------------ */
+
+/** Written every frame; published on window only when the URL has ?qa=1. */
+const probe = { door: 0, slats: 0, truckX: 0, truckZ: 0, heading: 0 }
+
+/* ------------------------------------------------------------------ */
 /* Box truck                                                           */
 /* ------------------------------------------------------------------ */
+
+
+/* ------------------------------------------------------------------ */
+/* Roll-up curtain (truck tail gate + depot shutters)                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A real sectional roll-up door: the curtain is a stack of steel slats that
+ * climb into the drum one by one as it opens, with a bottom bar, grab handles
+ * and lock rods. Both the truck tail gate and the depot bays use it.
+ */
+function RollDoor({
+  open,
+  width,
+  height,
+  slats = 12,
+  position = [0, 0, 0],
+  tint = '#cdd2d8',
+}: {
+  open: React.RefObject<number>
+  width: number
+  height: number
+  slats?: number
+  position?: [number, number, number]
+  tint?: string
+}) {
+  const metal = useMemo(() => brushedMetalMaps([8, 1]), [])
+  const curtain = useRef<THREE.Group>(null)
+  const slatRefs = useRef<Array<THREE.Mesh | null>>([])
+  const slatH = height / slats
+
+  useFrame(() => {
+    const o = THREE.MathUtils.clamp(open.current ?? 0, 0, 1)
+    const lift = o * height
+    if (curtain.current) curtain.current.position.y = lift
+    // each slat vanishes into the drum once its bottom edge clears the head
+    let hanging = 0
+    for (let i = 0; i < slats; i++) {
+      const m = slatRefs.current[i]
+      const inOpening = i * slatH + lift < height - 0.004
+      if (m) m.visible = inOpening
+      if (inOpening) hanging++
+    }
+    if (width < 3) probe.slats = hanging
+  })
+
+  return (
+    <group position={position}>
+      {/* side seals */}
+      {[-1, 1].map((s) => (
+        <mesh key={s} position={[(s * width) / 2, height / 2, 0]}>
+          <boxGeometry args={[0.07, height, 0.1]} />
+          <meshStandardMaterial color="#191b1e" roughness={0.95} />
+        </mesh>
+      ))}
+
+      <group ref={curtain}>
+        {Array.from({ length: slats }).map((_, i) => (
+          <mesh
+            key={i}
+            ref={(el) => {
+              slatRefs.current[i] = el
+            }}
+            position={[0, slatH * (i + 0.5), 0]}
+            castShadow
+          >
+            <boxGeometry args={[width, slatH * 0.96, 0.05]} />
+            <meshStandardMaterial
+              map={metal.map}
+              normalMap={metal.normalMap}
+              roughnessMap={metal.roughnessMap}
+              color={tint}
+              metalness={0.62}
+              roughness={0.46}
+              envMapIntensity={1}
+            />
+          </mesh>
+        ))}
+
+        {/* bottom bar with grab handles */}
+        <group position={[0, slatH * 0.45, 0.05]}>
+          <mesh castShadow>
+            <boxGeometry args={[width, 0.13, 0.07]} />
+            <meshStandardMaterial color="#9ba1a8" roughness={0.42} metalness={0.7} />
+          </mesh>
+          {[-0.42, 0.42].map((x) => (
+            <mesh key={x} position={[x, -0.11, 0.09]}>
+              <boxGeometry args={[0.3, 0.05, 0.05]} />
+              <meshStandardMaterial color="#7f858c" roughness={0.4} metalness={0.75} />
+            </mesh>
+          ))}
+        </group>
+
+        {/* lock rods, as on a real tail gate */}
+        {width > 2 ? (
+          [-1, 1].map((s) => (
+            <mesh key={s} position={[(s * (width / 2 - 0.16)), height / 2, 0.06]}>
+              <cylinderGeometry args={[0.022, 0.022, height * 0.97, 8]} />
+              <meshStandardMaterial color="#a8aeb5" roughness={0.35} metalness={0.8} />
+            </mesh>
+          ))
+        ) : null}
+      </group>
+
+      {/* drum the curtain rolls into */}
+      <mesh position={[0, height + 0.09, 0]}>
+        <cylinderGeometry args={[0.11, 0.11, width - 0.06, 14]} />
+        <meshStandardMaterial color="#7d838a" roughness={0.45} metalness={0.7} />
+      </mesh>
+    </group>
+  )
+}
 
 function Wheel({ position, size = 0.52 }: { position: [number, number, number]; size?: number }) {
   return (
     <group position={position} rotation={[0, 0, Math.PI / 2]}>
-      <mesh castShadow>
-        <cylinderGeometry args={[size, size, 0.34, 18]} />
-        <meshStandardMaterial color="#15171a" roughness={0.9} />
-      </mesh>
-      <mesh position={[0, 0.18, 0]} rotation={[0, 0, 0]}>
-        <cylinderGeometry args={[size * 0.52, size * 0.52, 0.04, 14]} />
-        <meshStandardMaterial color="#8d9298" roughness={0.35} metalness={0.85} />
-      </mesh>
+      <group name="roll">
+        <mesh castShadow>
+          <cylinderGeometry args={[size, size, 0.34, 20]} />
+          <meshStandardMaterial color="#15171a" roughness={0.92} />
+        </mesh>
+        <mesh position={[0, 0.18, 0]}>
+          <cylinderGeometry args={[size * 0.52, size * 0.52, 0.04, 14]} />
+          <meshStandardMaterial color="#8d9298" roughness={0.35} metalness={0.85} />
+        </mesh>
+        {[-1, 1].map((s) => (
+          <mesh key={s} position={[0, s * 0.174, 0]}>
+            <cylinderGeometry args={[size * 0.94, size * 0.94, 0.02, 20]} />
+            <meshStandardMaterial color="#0d0f11" roughness={0.95} />
+          </mesh>
+        ))}
+      </group>
     </group>
   )
 }
 
 export function Truck({
   progress,
-  wheelSpin,
   doorOpen,
 }: {
   progress: ScrollRef
-  wheelSpin: React.RefObject<number>
   doorOpen: React.RefObject<number>
 }) {
   const root = useRef<THREE.Group>(null)
   const wheels = useRef<THREE.Group>(null)
-  const shutter = useRef<THREE.Group>(null)
   const livery = useMemo(() => signTexture('DEPOZIT', 'SECOND-HAND', 'IMPORT DIRECT · ANGLIA · 20+ ANI'), [])
-  const bodyShutter = useMemo(() => shutterTexture(), [])
+  const paint = useMemo(() => vehiclePaintMaps([2.4, 1]), [])
+  const chassis = useMemo(() => chassisMaps([6, 2]), [])
   const interior = useRef<THREE.PointLight>(null)
   const innerGlow = useRef<THREE.Sprite>(null)
 
-  useFrame((_, dt) => {
+  /** yard drive-in: a real approach lane that ends at the loading bay */
+  const lane = useMemo(
+    () =>
+      new THREE.CatmullRomCurve3(
+        [
+          new THREE.Vector3(17.5, 0, 32),
+          new THREE.Vector3(14.2, 0, 25.5),
+          new THREE.Vector3(10.4, 0, 18.4),
+          new THREE.Vector3(5.6, 0, 10.6),
+          new THREE.Vector3(1.9, 0, 5.4),
+          new THREE.Vector3(0, 0, 2.4),
+          new THREE.Vector3(0, 0, 0),
+        ],
+        false,
+        'catmullrom',
+        0.35,
+      ),
+    [],
+  )
+  const pt = useMemo(() => new THREE.Vector3(), [])
+  const tan = useMemo(() => new THREE.Vector3(), [])
+  const lastPos = useRef(new THREE.Vector3(17.5, 0, 32))
+  const travel = useRef(0)
+
+  useFrame(() => {
     const p = progress.current.p
-    // drive-in: comes from the right and parks
-    const t = smoothstep(range(p, 0.015, 0.23))
     const g = root.current
+    // easing out hard at the end = it brakes, creeps the last metre and stops
+    const raw = smoothstep(range(p, 0.02, 0.315))
+    const t = 1 - Math.pow(1 - raw, 1.6)
+
     if (g) {
-      g.position.x = THREE.MathUtils.lerp(28, 0, t)
-      g.position.z = THREE.MathUtils.lerp(6, 0, t)
-      g.rotation.y = THREE.MathUtils.lerp(-0.22, 0, t)
-      g.position.y = Math.sin(t * 26) * 0.035 * (1 - t)
+      lane.getPointAt(t, pt)
+      lane.getTangentAt(t, tan)
+      // settle: nose dips under braking, suspension levels out when parked
+      const braking = Math.sin(Math.PI * t) * (1 - t) * 0.045
+      g.position.set(pt.x, -braking, pt.z)
+      // the cab (-Z) follows the lane, so the truck steers instead of sliding
+      g.rotation.y = Math.atan2(-tan.x, -tan.z)
+      g.rotation.x = -braking * 0.6
       g.visible = p < 0.5
+
+      const step = pt.distanceTo(lastPos.current)
+      if (step < 2.5) travel.current += step
+      lastPos.current.copy(pt)
+      probe.truckX = pt.x
+      probe.truckZ = pt.z
+      probe.heading = g.rotation.y
     }
-    // wheel spin decays after parking
+    probe.door = doorOpen.current ?? 0
+    if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('qa')) {
+      ;(window as unknown as { __qa?: object }).__qa = { p, ...probe }
+    }
+
+    // wheels roll exactly as far as the truck travels, then stop
     if (wheels.current) {
-      const spin = (wheelSpin.current ?? 0) * dt
       wheels.current.children.forEach((c) => {
-        c.rotation.x -= spin
+        const roll = c.children[0]
+        if (roll) roll.rotation.y = -travel.current / 0.52
       })
     }
-    // rear roll-up door
+
+    // tail gate rides up into the drum
     const o = doorOpen.current ?? 0
-    if (shutter.current) {
-      shutter.current.scale.y = Math.max(0.02, 1 - o)
-      shutter.current.position.y = -1.41 + o * 2.66
-    }
     if (interior.current) interior.current.intensity = 4 + o * 42
     if (innerGlow.current) {
       const m = innerGlow.current.material as THREE.SpriteMaterial
@@ -370,7 +507,14 @@ export function Truck({
       {/* chassis */}
       <mesh position={[0, 0.86, 4.3]} castShadow>
         <boxGeometry args={[2.2, 0.32, 8.6]} />
-        <meshStandardMaterial color="#22252a" roughness={0.8} metalness={0.4} />
+        <meshStandardMaterial
+          map={chassis.map}
+          normalMap={chassis.normalMap}
+          roughnessMap={chassis.roughnessMap}
+          color="#6d7176"
+          roughness={0.75}
+          metalness={0.5}
+        />
       </mesh>
 
       {/* cargo body shell */}
@@ -384,18 +528,33 @@ export function Truck({
         {[-1, 1].map((s) => (
           <mesh key={s} position={[(s * bodyW) / 2, 0, 0]} castShadow receiveShadow>
             <boxGeometry args={[0.06, bodyH, bodyL]} />
-            <meshStandardMaterial color="#eceef1" roughness={0.42} metalness={0.15} />
+            <meshStandardMaterial
+              map={paint.map}
+              normalMap={paint.normalMap}
+              roughnessMap={paint.roughnessMap}
+              color="#f2f4f7"
+              roughness={0.4}
+              metalness={0.22}
+              envMapIntensity={1.1}
+            />
           </mesh>
         ))}
         {/* roof */}
         <mesh position={[0, bodyH / 2, 0]} castShadow>
           <boxGeometry args={[bodyW, 0.07, bodyL]} />
-          <meshStandardMaterial color="#f2f4f7" roughness={0.5} />
+          <meshStandardMaterial color="#e7ebef" roughness={0.55} metalness={0.2} />
         </mesh>
         {/* front wall */}
         <mesh position={[0, 0, -bodyL / 2]} castShadow>
           <boxGeometry args={[bodyW, bodyH, 0.07]} />
-          <meshStandardMaterial color="#e6e8ec" roughness={0.45} />
+          <meshStandardMaterial
+            map={paint.map}
+            normalMap={paint.normalMap}
+            roughnessMap={paint.roughnessMap}
+            color="#f2f4f7"
+            roughness={0.45}
+            metalness={0.2}
+          />
         </mesh>
 
         {/* livery on both sides */}
@@ -427,23 +586,15 @@ export function Truck({
           <planeGeometry args={[bodyW - 0.28, bodyH - 0.3]} />
           <meshStandardMaterial color="#0a0b0c" roughness={1} />
         </mesh>
-        {/* rolling shutter (rear) */}
-        <group ref={shutter} position={[0, -bodyH / 2, 0]}>
-          <mesh position={[0, 1.42, bodyL / 2 + 0.03]}>
-            <planeGeometry args={[bodyW - 0.3, 2.66]} />
-            <meshStandardMaterial
-              map={bodyShutter}
-              color="#c2c6cc"
-              roughness={0.5}
-              metalness={0.55}
-            />
-          </mesh>
-        </group>
-        {/* drum above the rear */}
-        <mesh position={[0, bodyH / 2 - 0.1, bodyL / 2 + 0.06]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.13, 0.13, bodyW - 0.2, 10]} />
-          <meshStandardMaterial color="#8b9097" roughness={0.5} metalness={0.6} />
-        </mesh>
+        {/* tail gate: real slatted roll-up door */}
+        <RollDoor
+          open={doorOpen}
+          width={bodyW - 0.3}
+          height={bodyH - 0.26}
+          slats={11}
+          tint="#c8ccd2"
+          position={[0, -bodyH / 2, bodyL / 2 + 0.04]}
+        />
 
         {/* interior warm light + glow */}
         <pointLight ref={interior} position={[0, 0.4, 1.4]} intensity={4} distance={12} color="#ffb877" />

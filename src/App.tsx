@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { useProgress } from '@react-three/drei'
 import { Experience } from './three/Experience'
 import { SCENE_CUT } from './three/sequence'
-import { useScrollProgress } from './lib/hooks'
+import { useScrollProgress, useScrollSnap } from './lib/hooks'
 import { asset } from './lib/asset'
 import {
   ContactSection,
@@ -80,6 +80,7 @@ function supportsWebGL() {
 
 export default function App() {
   const { progressRef, progress } = useScrollProgress()
+  useScrollSnap()
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [ready, setReady] = useState(false)
   const [hasWebGL] = useState(() => (typeof window === 'undefined' ? true : supportsWebGL()))

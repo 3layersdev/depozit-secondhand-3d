@@ -19,6 +19,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 0;
   -webkit-text-size-adjust: 100%;
   /* stop mobile swipe-back while scrubbing the scene */
   overscroll-behavior-y: none;

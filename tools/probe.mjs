@@ -1,23 +1,26 @@
 import puppeteer from 'puppeteer-core'
-const args = process.argv.slice(2)
-const browser = await puppeteer.launch({
-  executablePath: '/usr/bin/google-chrome',
-  headless: 'shell',
-  args: ['--no-sandbox', '--disable-dev-shm-usage', ...args],
+const BEATS=[[0,.16],[.16,.32],[.32,.484],[.484,.64],[.64,.77],[.77,.9],[.9,1]]
+const b=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',headless:'shell',args:['--no-sandbox','--disable-dev-shm-usage']})
+const p=await b.newPage(); await p.setViewport({width:1440,height:900})
+p.on('pageerror',e=>console.log('PAGEERR',e.message))
+p.on('error',e=>console.log('CRASH',e.message))
+await p.goto('http://127.0.0.1:4181/?qa=1',{waitUntil:'domcontentloaded',timeout:45000})
+await p.waitForFunction(()=>document.documentElement.dataset.p!==undefined,{timeout:25000})
+await new Promise(r=>setTimeout(r,1500))
+const info=await p.evaluate(()=>{
+  const panels=[...document.querySelectorAll('.panel')]
+  return {tops:panels.map(el=>el.getBoundingClientRect().top+window.scrollY), max:document.documentElement.scrollHeight-window.innerHeight}
 })
-const page = await browser.newPage()
-await page.setViewport({ width: 1280, height: 800 })
-const logs = []
-page.on('console', (m) => logs.push(`[${m.type()}] ${m.text()}`))
-page.on('pageerror', (e) => logs.push(`[pageerror] ${e.message}`))
-await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded', timeout: 45000 })
-await new Promise(r => setTimeout(r, 5000))
-const info = await page.evaluate(() => ({
-  html: document.getElementById('root')?.innerHTML.slice(0, 300),
-  gl: (() => { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')) } catch (e) { return 'err:' + e.message } })(),
-  loaderText: document.querySelector('.loader')?.textContent,
-  canvas: !!document.querySelector('canvas'),
-}))
-console.log(JSON.stringify(info, null, 1))
-console.log(logs.join('\n'))
-await browser.close()
+const targets=process.argv.slice(2).map(Number)
+for(const t of targets){
+  let i=BEATS.findIndex(([a,b2])=>t>=a&&t<b2); if(i<0)i=BEATS.length-1
+  const [a,b2]=BEATS[i]; const frac=(t-a)/(b2-a)
+  const top=info.tops[i], next=info.tops[i+1]??info.max
+  const y=Math.round(top+frac*(next-top-1))
+  await p.evaluate(v=>window.scrollTo(0,v),y)
+  await new Promise(r=>setTimeout(r,600))
+  const q=await p.evaluate(()=>window.__qa)
+  const pv=await p.evaluate(()=>document.documentElement.dataset.p)
+  console.log(`want=${t} got=${pv} truck=(${q.truckX.toFixed(2)},${q.truckZ.toFixed(2)}) head=${(q.heading*180/Math.PI).toFixed(1)}deg door=${q.door.toFixed(2)} slats=${q.slats}`)
+}
+await b.close()

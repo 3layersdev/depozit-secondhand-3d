@@ -255,3 +255,58 @@ export function brushedMetalMaps(repeat: [number, number] = [2, 2]) {
     }
   })
 }
+
+/* ------------------------------------------------------------------ */
+/* vehicle paint                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Painted steel for the truck body: panel seams, rivet lines, orange-peel
+ * grain, road dirt creeping up from the sill and a few scratches. Comes with
+ * normal + roughness so the paint catches the low sun instead of reading flat.
+ */
+export function vehiclePaintMaps(repeat: [number, number] = [2, 1]) {
+  return buildMaps(384, repeat, (u, v) => {
+    const grain = fbm(u * 150, v * 150, 101, 3) - 0.5
+    const peel = fbm(u * 40, v * 40, 111, 2) - 0.5
+
+    // panel seams every quarter of the body side
+    const cell = u * 4
+    const d = Math.min(cell % 1, 1 - (cell % 1))
+    const seam = d < 0.006 ? 0.7 : 1
+    // rivet rows just above the sill and under the roof
+    const rivetBand = (v > 0.055 && v < 0.085) || (v > 0.915 && v < 0.945)
+    const rivetCell = (v * 90) % 1
+    const rivet = rivetBand && d < 0.05 && rivetCell < 0.45 ? 1 : 0
+
+    // road grime: strongest at the bottom, broken up by streaks
+    const streak = fbm(u * 18, v * 4, 121, 3)
+    const dirt = clamp01((v - 0.7) / 0.3) * (0.45 + streak * 0.75)
+    const spray = clamp01((fbm(u * 55, v * 55, 131, 3) - 0.62) * 3) * clamp01((v - 0.6) * 2)
+
+    // a handful of light scratches
+    const scratch = hash2(Math.floor(v * 384), Math.floor(u * 12), 141) > 0.985 ? 0.12 : 0
+
+    const base = 0.9 + peel * 0.05 + grain * 0.03
+    const tint = base * seam * (1 - dirt * 0.34 - spray * 0.22) + scratch
+    return {
+      rgb: [tint * 1.0, tint * 0.995, tint * 0.985] as RGB,
+      height: peel * 0.35 + grain * 0.4 + (seam < 1 ? -0.6 : 0) + rivet * 0.8 + dirt * 0.2,
+      rough: 0.3 + grain * 0.1 + dirt * 0.45 + spray * 0.3,
+    }
+  })
+}
+
+/** Weathered galvanised chassis / underframe: rust blooms on dull steel. */
+export function chassisMaps(repeat: [number, number] = [4, 2]) {
+  return buildMaps(256, repeat, (u, v) => {
+    const grain = fbm(u * 120, v * 120, 151, 3)
+    const rust = clamp01((fbm(u * 7, v * 7, 161, 4) - 0.52) * 3.2)
+    const tone = 0.2 + grain * 0.12
+    return {
+      rgb: [tone * (1 + rust * 2.1), tone * (1 + rust * 0.8), tone * (1 - rust * 0.2)] as RGB,
+      height: grain * 0.5 + rust * 0.4,
+      rough: 0.62 + rust * 0.34,
+    }
+  })
+}

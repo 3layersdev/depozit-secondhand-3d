@@ -159,19 +159,16 @@ function Grade() {
 
 export function Experience({ progress }: { progress: ScrollRef }) {
   const ext = useRef<THREE.Group>(null)
-  const wheelSpin = useRef(6)
   const doorOpen = useRef(0)
   const whOpen = useRef(0)
 
-  useFrame((_, dt) => {
+  useFrame(() => {
     const p = progress.current.p
     if (ext.current) ext.current.visible = p < SCENE_CUT + 0.002
-    // shutter choreography
-    doorOpen.current = smoothstep(range(p, 0.315, 0.455))
-    whOpen.current = smoothstep(range(p, 0.05, 0.2)) * 0.28
-    // wheels stop once parked
-    const parked = smoothstep(range(p, 0.2, 0.26))
-    wheelSpin.current = THREE.MathUtils.lerp(wheelSpin.current, parked > 0.9 ? 0 : 5.5, 1 - Math.exp(-4 * Math.min(dt, 0.05)))
+    // the tail gate follows the copy: it opens on the "ușa" chapter; the depot
+    // bays stay cracked open so warm light leaks into the yard
+    doorOpen.current = smoothstep(range(p, 0.3, 0.46))
+    whOpen.current = smoothstep(range(p, 0.05, 0.2)) * 0.3
   })
 
   return (
@@ -183,7 +180,7 @@ export function Experience({ progress }: { progress: ScrollRef }) {
         <Yard />
         <Warehouse open={whOpen} />
         <YardProps />
-        <Truck progress={progress} wheelSpin={wheelSpin} doorOpen={doorOpen} />
+        <Truck progress={progress} doorOpen={doorOpen} />
       </group>
       <Interior progress={progress} />
       <Grade />
