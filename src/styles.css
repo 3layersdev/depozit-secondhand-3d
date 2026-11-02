@@ -1962,3 +1962,663 @@ body {
 .grade {
   background: #fffdf8;
 }
+
+/* ================================================================ */
+/* Layout pass — scena 3D rămâne vizibilă la fiecare capitol         */
+/* cardul nu are niciodată scroll interior (roata aparține filmului) */
+/* ================================================================ */
+:root {
+  --hdr: 78px;
+}
+
+.header {
+  min-height: var(--hdr);
+}
+
+.panel {
+  min-height: 100svh;
+  padding-top: calc(var(--hdr) + 14px);
+  padding-bottom: 18px;
+  box-sizing: border-box;
+}
+
+.panel--hero,
+.panel--end {
+  padding-bottom: 18px;
+}
+
+/* un card nu depășește niciodată înălțimea utilă, deci nu iese sub header */
+.card,
+.panel--hero .reveal,
+.contact {
+  max-height: calc(100svh - var(--hdr) - 32px);
+}
+
+/* footerul era cel mai înalt bloc din pagină: îl compactez ca să încapă */
+.footer__cols {
+  gap: clamp(14px, 2vw, 26px);
+}
+
+.panel--end .card {
+  padding-block: clamp(16px, 2vw, 26px);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --hdr: 58px;
+  }
+
+  .panel {
+    align-items: flex-end;
+    padding: calc(var(--hdr) + 8px) 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .panel--hero {
+    align-items: flex-end;
+  }
+
+  /* cardul stă ca un panou jos: sus rămâne mereu cadrul 3D */
+  .card,
+  .panel--hero .reveal,
+  .contact {
+    width: 100%;
+    max-height: calc(54svh - env(safe-area-inset-bottom, 0px));
+    padding: 14px 14px 16px;
+    border-radius: 18px;
+  }
+
+  .chapter__title {
+    font-size: clamp(20px, 6vw, 26px);
+    line-height: 1.1;
+  }
+
+  .hero__text,
+  .lede,
+  .svc__points {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+  }
+
+  .stats {
+    gap: 10px 14px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+  }
+
+  /* progresul rămâne pe dreapta, dar fără etichete care intră peste card */
+  .rail__label {
+    display: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .card,
+  .panel--hero .reveal,
+  .contact {
+    max-height: calc(55svh - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------------- compactare conținut ca să încapă fără scroll ------- */
+#galerie .card {
+  width: min(660px, 100%);
+}
+
+.card .thumbs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.card .thumb--lg,
+.card .thumb--tall,
+.card .thumb--sm {
+  grid-column: auto;
+  grid-row: auto;
+  aspect-ratio: 4 / 3;
+}
+
+.card .svc__row {
+  padding-block: 7px;
+}
+
+.card .svc__points {
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.card .lede {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+@media (min-width: 901px) {
+  .card,
+  .contact {
+    max-height: calc(76svh);
+  }
+
+  .panel--hero .reveal {
+    max-height: calc(78svh);
+  }
+}
+
+@media (max-width: 900px) {
+  .card .thumbs {
+    gap: 6px;
+  }
+
+  .card .svc__row {
+    padding-block: 5px;
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .card .svc__points {
+    display: none;
+  }
+
+  .card .svc__name {
+    font-size: 13px;
+  }
+
+  .card .svc__tag {
+    font-size: 10.5px;
+  }
+
+  .card .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card .stat__value {
+    font-size: 19px;
+  }
+
+  .card .actions {
+    gap: 8px;
+  }
+
+  .card .btn {
+    font-size: 12.5px;
+    padding: 9px 13px;
+  }
+}
+
+/* ---------------- mobil: grades, facebook și contact, pe verticală mică -- */
+@media (max-width: 900px) {
+  .card,
+  .panel--hero .reveal,
+  .contact {
+    max-height: calc(58svh - env(safe-area-inset-bottom, 0px));
+  }
+
+  .grades {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .grade {
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  .grade__name {
+    font-size: 13px;
+  }
+
+  .grade__tag {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+
+  .grade__bar {
+    margin: 6px 0 0;
+  }
+
+  .grade__text {
+    display: none;
+  }
+
+  .fbblock {
+    padding: 10px 12px;
+  }
+
+  .fbblock__frame,
+  .fbblock__grid {
+    display: none;
+  }
+
+  .fbblock__title {
+    font-size: 14px;
+  }
+
+  .fbblock__text {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .contact__list {
+    margin-top: 10px;
+    gap: 6px;
+  }
+
+  .contact__row {
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 460px) {
+  .grades {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------------- pas final: carduri late pe desktop, conținut pe 2 coloane */
+@media (min-width: 901px) {
+  #servicii .card,
+  #galerie .card,
+  #calitate .card {
+    width: min(720px, 100%);
+  }
+
+  .chapter__title {
+    font-size: clamp(26px, 2.3vw, 34px);
+    line-height: 1.08;
+  }
+
+  #servicii .svc {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 20px;
+  }
+
+  .grades {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .grade {
+    padding: 10px 12px;
+  }
+
+  .fbblock {
+    padding: 14px 16px;
+    margin-top: 14px;
+  }
+
+  .fbblock__grid {
+    display: none;
+  }
+
+  .panel--hero .reveal {
+    width: min(820px, 100%);
+    max-height: 84svh;
+  }
+}
+
+@media (max-width: 900px) {
+  .fineprint,
+  .audience {
+    display: none;
+  }
+
+  .card .thumbs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .fbblock {
+    margin-top: 10px;
+  }
+
+  .contact__title {
+    font-size: clamp(19px, 5.6vw, 24px);
+    line-height: 1.12;
+  }
+
+  .contact .lede {
+    display: none;
+  }
+
+  .contact__row {
+    padding: 6px 9px;
+    font-size: 12.5px;
+  }
+
+  .contact__label {
+    font-size: 9.5px;
+  }
+
+  .footer__title {
+    font-size: 15px;
+  }
+
+  .footer__col a,
+  .footer__col li {
+    font-size: 12px;
+  }
+}
+
+/* lățimile cardurilor stau în CSS, nu inline: fiecare capitol are ritmul lui */
+.hero__card {
+  width: min(820px, 100%);
+}
+
+@media (min-width: 901px) {
+  #galerie .card .thumbs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  #servicii .chips {
+    gap: 6px;
+  }
+
+  #servicii .fineprint {
+    font-size: 12px;
+    line-height: 1.35;
+    margin-top: 10px;
+  }
+
+  #servicii .audience {
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .panel--hero .reveal {
+    max-height: 86svh;
+  }
+}
+
+/* ---------------- reglaj fin pe ultimele trei carduri ------------------- */
+@media (min-width: 901px) {
+  .panel--hero .reveal {
+    max-height: 88svh;
+  }
+
+  #galerie .card {
+    max-height: 84svh;
+  }
+
+  #galerie .card .thumbs {
+    gap: 7px;
+  }
+
+  #galerie .card .thumb img {
+    object-fit: cover;
+  }
+
+  #galerie .card .thumbs .thumb {
+    aspect-ratio: 16 / 10;
+  }
+
+  #galerie .fbblock__text {
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 900px) {
+  .panel--hero .reveal {
+    max-height: calc(60svh - env(safe-area-inset-bottom, 0px));
+  }
+
+  .card .chips {
+    gap: 5px;
+    margin-top: 8px;
+  }
+
+  .card .chip {
+    font-size: 10.5px;
+    padding: 4px 8px;
+  }
+
+  #galerie .card .thumbs {
+    gap: 4px;
+  }
+}
+
+/* ultima zecime de pixel: capul de înălțime pe mobil și hero pe desktop */
+@media (min-width: 901px) {
+  .panel--hero .reveal {
+    max-height: 90svh;
+  }
+}
+
+@media (max-width: 900px) {
+  .card,
+  .panel--hero .reveal,
+  .contact {
+    max-height: calc(61svh - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ecrane scurte (360x640, 375x667): cardul incape intreg, scena ramane sus */
+@media (max-width: 900px) and (max-height: 730px) {
+  .card,
+  .panel--hero .reveal,
+  .contact {
+    max-height: calc(78svh - env(safe-area-inset-bottom, 0px));
+    padding: 11px 12px 12px;
+  }
+
+  .card .chapter__title {
+    font-size: 17px;
+  }
+
+  .card .lede,
+  .hero__card .hero__text,
+  .scrollhint {
+    display: none;
+  }
+
+  .card .thumbs {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 3px;
+  }
+
+  .card .thumb--lg,
+  .card .thumb--tall,
+  .card .thumb--sm {
+    aspect-ratio: 1 / 1;
+  }
+
+  .card .svc__row {
+    padding-block: 3px;
+  }
+
+  .card .chip {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+
+  .card .contact__row {
+    padding: 4px 7px;
+    font-size: 11.5px;
+  }
+
+  .fbblock {
+    padding: 8px 10px;
+  }
+
+  .hero__card .h1 {
+    font-size: clamp(23px, 7.6vw, 30px);
+  }
+
+  .card .stat__value {
+    font-size: 15px;
+  }
+
+  .card .stat__label {
+    font-size: 9.5px;
+  }
+}
+
+/* ================================================================ */
+/* Rafinare tipografică                                              */
+/* ================================================================ */
+.h1,
+.chapter__title,
+.contact__title,
+.footer__title {
+  text-wrap: balance;
+  letter-spacing: -0.012em;
+}
+
+.lede,
+.hero__text,
+.grade__text,
+.fbblock__text,
+.svc__points {
+  text-wrap: pretty;
+}
+
+.lede {
+  max-width: 58ch;
+}
+
+.hero__text {
+  max-width: 54ch;
+}
+
+.stat__value,
+.svc__idx,
+.chapter__num,
+.contact__row {
+  font-variant-numeric: tabular-nums;
+}
+
+.eyebrow,
+.chapter__meta {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.16em;
+}
+
+.chapter__title {
+  margin-block: 0.3em 0.45em;
+}
+
+.lede + .svc,
+.lede + .grades,
+.lede + .thumbs,
+.lede + .steps {
+  margin-top: 12px;
+}
+
+/* ================================================================ */
+/* Ecrane scurte: conținut secundar iese, scena rămâne în cadru       */
+/* ================================================================ */
+@media (max-width: 900px) and (max-height: 730px) {
+  .card,
+  .panel--hero .reveal,
+  .contact {
+    max-height: calc(64svh - env(safe-area-inset-bottom, 0px));
+    padding: 10px 11px 11px;
+  }
+
+  .card .chapter__title {
+    font-size: 16px;
+    margin-block: 0.2em 0.3em;
+  }
+
+  .card .fbblock,
+  .card .scrollhint {
+    display: none;
+  }
+
+  .card .thumbs {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 3px;
+  }
+
+  .card .svc__row {
+    padding-block: 2px;
+  }
+
+  .card .chips {
+    margin-top: 6px;
+  }
+
+  .card .chip {
+    font-size: 8.5px;
+    padding: 2px 5px;
+  }
+
+  .card .contact__row {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+
+  .card .stat__value {
+    font-size: 14px;
+  }
+
+  .card .stat__label {
+    font-size: 9px;
+  }
+
+  .hero__card .h1 {
+    font-size: clamp(21px, 7vw, 27px);
+  }
+
+  .card .grades {
+    gap: 5px;
+    margin-top: 8px;
+  }
+
+  .card .grade {
+    padding: 5px 7px;
+  }
+
+  .card .grade__name {
+    font-size: 11.5px;
+  }
+
+  .card .actions {
+    gap: 6px;
+    margin-top: 8px;
+  }
+}
+
+/* ================================================================ */
+/* Smoothness: mai puțin blur pe mobil (compozit peste WebGL)        */
+/* ================================================================ */
+@media (max-width: 900px) {
+  .card,
+  .panel--hero .reveal,
+  .contact {
+    -webkit-backdrop-filter: blur(8px) saturate(135%);
+    backdrop-filter: blur(8px) saturate(135%);
+  }
+}
+
+@media (max-width: 900px) and (max-height: 730px) {
+  .contact .btn--ghost {
+    display: none;
+  }
+
+  .contact__list {
+    gap: 3px;
+    margin-top: 8px;
+  }
+
+  .contact__row {
+    padding: 2px 6px;
+    font-size: 10.5px;
+    border-radius: 7px;
+  }
+
+  .contact__label {
+    font-size: 8.5px;
+  }
+
+  .contact .actions {
+    margin-top: 6px;
+  }
+}

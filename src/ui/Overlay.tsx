@@ -97,7 +97,7 @@ function Chapter({
 }) {
   return (
     <section className={`panel ${align === 'right' ? 'panel--right' : ''}`} id={id}>
-      <div className={`reveal ${align === 'right' ? 'card' : 'card'}`} style={align === 'right' ? { width: 'min(520px, 100%)' } : undefined}>
+      <div className="reveal card">
         <div className="chapter__meta">
           <span className="chapter__num">{index}</span>
           <span>{label}</span>
@@ -112,7 +112,7 @@ function Chapter({
 export function HeroSection() {
   return (
     <section className="panel panel--hero" id="depozit">
-      <div className="reveal is-visible" style={{ width: 'min(760px, 100%)' }}>
+      <div className="reveal is-visible hero__card">
         <p className="eyebrow">{hero.eyebrow}</p>
         <h1 className="h1" aria-label={hero.title.join(' ')}>
           {hero.title.map((line) => (
