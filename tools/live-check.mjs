@@ -1,31 +1,23 @@
 import puppeteer from 'puppeteer-core'
-const url = process.argv[2] ?? 'https://3layersdev.github.io/depozit-secondhand-3d/'
-const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'shell',
-  args: ['--no-sandbox','--disable-dev-shm-usage','--hide-scrollbars'] })
-const page = await browser.newPage()
-await page.setViewport({ width: 1280, height: 800 })
-const errs = []
-page.on('pageerror', e => errs.push(`pageerror: ${e.message}`))
-page.on('requestfailed', r => errs.push(`requestfailed: ${r.url().slice(-60)} ${r.failure()?.errorText}`))
-page.on('response', r => { if (r.status() >= 400) errs.push(`http${r.status()}: ${r.url().slice(-70)}`) })
-page.on('console', m => { if (m.type() === 'error') errs.push(`console: ${m.text().slice(0,160)}`) })
-await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 })
-await new Promise(r => setTimeout(r, 6000))
-const info = await page.evaluate(() => ({
-  canvas: !!document.querySelector('canvas'),
-  canvasSize: (() => { const c = document.querySelector('canvas'); return c ? `${c.width}x${c.height}` : null })(),
-  poster: !!document.querySelector('.stage--fallback'),
-  loaderHidden: !!document.querySelector('.loader.is-hidden'),
-  imgs: Array.from(document.images).filter(i => i.currentSrc).length,
-  broken: Array.from(document.images).filter(i => i.complete && i.naturalWidth === 0).map(i => i.src.slice(-30)),
-  thumbs: document.querySelectorAll('.thumb').length,
-}))
-console.log(JSON.stringify(info, null, 1))
-// scroll through the film and grab two frames
-for (const [name, frac] of [['live-mid', 0.42], ['live-end', 0.98]]) {
-  await page.evaluate(f => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * f), frac)
-  await new Promise(r => setTimeout(r, 2500))
-  await page.screenshot({ path: `shots/${name}.png` })
+const url=process.argv[2]
+const b=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',headless:'shell',args:['--no-sandbox','--disable-dev-shm-usage','--hide-scrollbars']})
+const pg=await b.newPage(); await pg.setViewport({width:1440,height:900})
+const errs=[]; pg.on('pageerror',e=>errs.push(e.message))
+await pg.goto(url,{waitUntil:'domcontentloaded',timeout:60000})
+await new Promise(r=>setTimeout(r,5500))
+const rows=[]
+for (let i=0;i<4;i++){
+  await pg.mouse.move(700,450); await pg.mouse.wheel({deltaY:340})
+  await new Promise(r=>setTimeout(r,1500))
+  rows.push(await pg.evaluate(()=>{
+    const panels=[...document.querySelectorAll('.panel')]
+    const best=panels.map((p,i)=>{const c=p.querySelector('.reveal');if(!c)return null;const r=c.getBoundingClientRect()
+      return {i,off:Math.round(r.top+r.height/2-innerHeight/2),lbl:p.querySelector('h1,h2')?.textContent?.slice(0,18)}}).filter(Boolean)
+      .sort((a,b)=>Math.abs(a.off)-Math.abs(b.off))[0]
+    return {y:Math.round(scrollY), idx:best?.i, off:best?.off, lbl:best?.lbl}
+  }))
 }
-console.log(errs.length ? 'ERRORS:\n' + [...new Set(errs)].join('\n') : 'clean: no console errors, no failed requests')
-await browser.close()
+const bg=await pg.evaluate(()=>getComputedStyle(document.body).backgroundColor)
+console.log(JSON.stringify({url,bg,rows,errors:errs.length,first:errs[0]||null},null,0))
+await pg.screenshot({path:process.argv[3]||'shots2/live.png'})
+await b.close()

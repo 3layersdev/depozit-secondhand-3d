@@ -202,17 +202,45 @@ export function useScrollSnap() {
       }
     }
 
-    // touch: let the browser scroll natively, then settle on the closest chapter
+    // touch: the finger decides the direction, the page decides the distance.
+    // Momentum is allowed to run natively, then we glide to the chapter that
+    // sits one notch from where the swipe STARTED — so a flick always advances
+    // exactly one chapter instead of bouncing back to the nearest card.
     let settle = 0
-    const onTouchEnd = () => {
+    let touchStartY = 0
+    let touchStartX = 0
+    let touchStartScroll = 0
+    const onTouchStart = (e: TouchEvent) => {
+      if (blocked(e.target)) return
+      const t = e.touches[0]
+      if (!t) return
+      touchStartY = t.clientY
+      touchStartX = t.clientX
+      touchStartScroll = window.scrollY
+      window.clearTimeout(settle)
+    }
+    const onTouchEnd = (e: TouchEvent) => {
+      const t = e.changedTouches[0]
+      const dy = t ? touchStartY - t.clientY : 0
+      const dx = t ? touchStartX - t.clientX : 0
       window.clearTimeout(settle)
       settle = window.setTimeout(() => {
         if (animating) return
         measure()
-        const y = window.scrollY
-        const near = stops.reduce((a, c) => (Math.abs(c - y) < Math.abs(a - y) ? c : a), stops[0])
-        if (Math.abs(near - y) > 12) animateTo(near)
-      }, 220)
+        const vertical = Math.abs(dy) >= 28 && Math.abs(dy) > Math.abs(dx)
+        const anchor = vertical ? touchStartScroll : window.scrollY
+        if (!vertical) {
+          const near = stops.reduce((a, c) => (Math.abs(c - anchor) < Math.abs(a - anchor) ? c : a), stops[0])
+          if (Math.abs(near - anchor) > 12) animateTo(near)
+          return
+        }
+        const edge = 8
+        const target =
+          dy > 0
+            ? stops.find((s) => s > anchor + edge) ?? stops[stops.length - 1]
+            : [...stops].reverse().find((s) => s < anchor - edge) ?? 0
+        if (Math.abs(target - window.scrollY) > 12) animateTo(target)
+      }, 180)
     }
 
     measure()
@@ -225,7 +253,9 @@ export function useScrollSnap() {
     window.addEventListener('orientationchange', measure)
     window.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('keydown', onKey)
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
     window.addEventListener('touchend', onTouchEnd, { passive: true })
+    window.addEventListener('touchcancel', onTouchEnd, { passive: true })
     return () => {
       window.clearTimeout(settle)
       ro.disconnect()
@@ -235,7 +265,9 @@ export function useScrollSnap() {
       window.removeEventListener('orientationchange', measure)
       window.removeEventListener('wheel', onWheel)
       window.removeEventListener('keydown', onKey)
+      window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchend', onTouchEnd)
+      window.removeEventListener('touchcancel', onTouchEnd)
     }
   }, [])
 }
