@@ -182,9 +182,7 @@ export const facebook = {
   followers: '3,5K',
   recommend: '96%',
   reviews: 18,
-  // widget public: afișează postările și clipurile reale, fără login
-  embed:
-    'https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fdepozitsecondhandromania&tabs=timeline&width=500&height=640&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false&lazy=true',
+  reels: 'https://www.facebook.com/depozitsecondhandromania/reels/',
 }
 
 /**

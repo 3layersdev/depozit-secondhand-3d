@@ -1356,3 +1356,40 @@ body {
     overflow: hidden;
   }
 }
+
+/* "din pagina noastră" — real photos, clip links, no third-party embed */
+.fbblock__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.fbblock__cell {
+  padding: 0;
+  border: 1px solid rgba(253, 245, 233, 0.14);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #2a1f18;
+  cursor: pointer;
+  aspect-ratio: 1 / 1;
+  transition: transform 200ms ease, border-color 200ms ease;
+}
+
+.fbblock__cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fbblock__cell:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .fbblock__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+}

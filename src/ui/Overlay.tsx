@@ -281,25 +281,25 @@ export function GallerySection({ onOpen }: { onOpen: (index: number) => void }) 
           <p className="eyebrow">Facebook</p>
           <h3 className="fbblock__title">Clipurile și pozele, pe viu</h3>
           <p className="fbblock__text">
-            Postăm zilnic ce intră în depozit: {facebook.followers} urmăritori, {facebook.recommend} recomandări.
-            Feed-ul de mai jos e pagina noastră reală, cu poze și clipuri.
+            Postăm zilnic ce intră în depozit. {facebook.followers} urmăritori, {facebook.recommend} recomandări,
+            poze și clipuri noi cu marfa din Anglia.
           </p>
           <a className="btn btn--ghost" href={facebook.page} target="_blank" rel="noreferrer">
             Deschide pagina de Facebook
           </a>
         </div>
-        <div className="fbblock__frame">
-          <iframe
-            title="Pagina de Facebook Depozit haine second-hand in Bucuresti"
-            src={facebook.embed}
-            width="500"
-            height="640"
-            style={{ border: 'none', overflow: 'hidden' }}
-            scrolling="no"
-            frameBorder="0"
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-            loading="lazy"
-          />
+        <div className="fbblock__grid">
+          {gallery.slice(0, 4).map((g, i) => (
+            <button
+              type="button"
+              className="fbblock__cell"
+              key={g.id}
+              onClick={() => onOpen(i)}
+              aria-label={`Deschide ${g.title}`}
+            >
+              <img src={g.src} alt={g.title} loading="lazy" />
+            </button>
+          ))}
         </div>
       </div>
     </Chapter>
