@@ -19,6 +19,13 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+/* while the chapter tween drives the page the browser must not add its own
+   easing on top: two animations fighting each other is what made the travel
+   land short of the target */
+html.is-snapping {
+  scroll-behavior: auto;
   scroll-padding-top: 0;
   -webkit-text-size-adjust: 100%;
   /* stop mobile swipe-back while scrubbing the scene */

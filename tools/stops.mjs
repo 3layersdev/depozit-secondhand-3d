@@ -1,16 +1,16 @@
 import puppeteer from 'puppeteer-core'
-const b=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',headless:'shell',args:['--no-sandbox','--disable-dev-shm-usage']})
-const pg=await b.newPage(); await pg.setViewport({width:1440,height:900})
-await pg.goto('http://127.0.0.1:4181/',{waitUntil:'domcontentloaded'})
-await new Promise(r=>setTimeout(r,5000))
-console.log(await pg.evaluate(()=>{
-  const limit=Math.round(document.documentElement.scrollHeight-innerHeight)
-  return [...document.querySelectorAll('.panel')].map((p,i)=>{
-    const cards=[...p.querySelectorAll('.reveal')]
-    return {i, per:cards.length, stops:cards.map(c=>{
-      const r=c.getBoundingClientRect(); const centre=r.top+scrollY+r.height/2
-      return Math.round(Math.min(limit,Math.max(0,centre-innerHeight/2)))
-    }), h:cards.map(c=>Math.round(c.getBoundingClientRect().height))}
-  }).concat([{limit}])
-}))
+const b=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',headless:'shell',args:['--no-sandbox','--disable-dev-shm-usage','--hide-scrollbars','--enable-unsafe-swiftshader']})
+const pg=await b.newPage(); await pg.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'no-preference'}])
+await pg.setViewport({width:+process.argv[3]||390,height:+process.argv[4]||844,isMobile:true,hasTouch:true})
+await pg.goto(process.argv[2],{waitUntil:'domcontentloaded'}); await new Promise(r=>setTimeout(r,8000))
+console.log(JSON.stringify(await pg.evaluate(()=>{
+  const limit=Math.max(0,Math.round(document.documentElement.scrollHeight-innerHeight))
+  const list=[...document.querySelectorAll('.panel')].map(panel=>{
+    const card=panel.querySelector('.reveal')||panel
+    const r=card.getBoundingClientRect()
+    const centre=r.top+scrollY+r.height/2
+    return {id:panel.id,stop:Math.round(Math.min(limit,Math.max(0,centre-innerHeight/2))),cardTop:Math.round(r.top+scrollY),h:Math.round(r.height)}
+  })
+  return {limit,list,docH:document.documentElement.scrollHeight,vh:innerHeight}
+})))
 await b.close()

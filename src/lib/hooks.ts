@@ -142,26 +142,33 @@ export function useScrollSnap() {
       const dur = Math.min(1250, 540 + Math.abs(dist) * 0.4)
       const t0 = performance.now()
       animating = true
+      // the page's own smooth scrolling would re-animate every frame we set,
+      // so the tween switches it off for its duration
+      document.documentElement.classList.add('is-snapping')
       cancelAnimationFrame(raf)
       const step = (now: number) => {
         const k = Math.min(1, (now - t0) / dur)
         const e = k < 0.5 ? 16 * k ** 5 : 1 - Math.pow(-2 * k + 2, 5) / 2
-        // 'instant' is essential: a smooth behaviour here would restart the
-        // CSS-driven animation every frame and cancel the tween
-        window.scrollTo({ top: Math.round(from + dist * e), behavior: 'instant' as ScrollBehavior })
+        window.scrollTo(0, Math.round(from + dist * e))
         if (k < 1) raf = requestAnimationFrame(step)
         else {
+          window.scrollTo(0, Math.round(to))
           animating = false
           releasedAt = performance.now()
+          document.documentElement.classList.remove('is-snapping')
         }
       }
       raf = requestAnimationFrame(step)
     }
 
+    // a stop sitting just under the current position (a card centred on its own
+    // chapter) is not a destination: a notch has to cross to the next chapter
+    const reach = () => Math.min(280, Math.round(window.innerHeight * 0.26))
+
     const next = (dir: number) => {
       measure()
       const y = window.scrollY
-      const edge = 8
+      const edge = reach()
       const target =
         dir > 0
           ? stops.find((t) => t > y + edge) ?? stops[stops.length - 1]
@@ -207,6 +214,7 @@ export function useScrollSnap() {
     // sits one notch from where the swipe STARTED — so a flick always advances
     // exactly one chapter instead of bouncing back to the nearest card.
     let settle = 0
+    let fingerDy = 0
     let touchStartY = 0
     let touchStartX = 0
     let touchStartScroll = 0
@@ -217,7 +225,17 @@ export function useScrollSnap() {
       touchStartY = t.clientY
       touchStartX = t.clientX
       touchStartScroll = window.scrollY
+      // the finger's own travel is the reliable signal: the browser applies
+      // native momentum asynchronously, so scrollY can still read zero at
+      // touchend even after a clear swipe
+      fingerDy = 0
       window.clearTimeout(settle)
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0]
+      if (!t) return
+      const dy = touchStartY - t.clientY
+      if (Math.abs(dy) > Math.abs(fingerDy)) fingerDy = dy
     }
     const onTouchEnd = (e: TouchEvent) => {
       const t = e.changedTouches[0]
@@ -226,26 +244,44 @@ export function useScrollSnap() {
       window.clearTimeout(settle)
       settle = window.setTimeout(() => {
         if (animating) return
-        measure()
-        // a real finger moves the page a lot more reliably than it reports its
-        // own delta, so the travelled distance decides, not the touch maths
-        const travelled = window.scrollY - touchStartScroll
-        const vertical =
-          Math.abs(travelled) > 40 || (Math.abs(dy) >= 28 && Math.abs(dy) > Math.abs(dx))
-        const anchor = vertical ? touchStartScroll : window.scrollY
-        if (!vertical) {
-          const near = stops.reduce((a, c) => (Math.abs(c - anchor) < Math.abs(a - anchor) ? c : a), stops[0])
-          if (Math.abs(near - anchor) > 12) animateTo(near)
-          return
-        }
-        const edge = 8
-        const forward = travelled !== 0 ? travelled > 0 : dy > 0
-        const target =
-          forward
-            ? stops.find((s) => s > anchor + edge) ?? stops[stops.length - 1]
-            : [...stops].reverse().find((s) => s < anchor - edge) ?? 0
-        if (Math.abs(target - window.scrollY) > 12) animateTo(target)
-      }, 180)
+        // the finger's own travel is decisive the moment it is big enough;
+        // a short drag has to wait for the browser to actually move the page,
+        // otherwise the page snaps back to the chapter it started from
+        if (Math.abs(fingerDy) >= 22) decide(fingerDy, dx)
+        else glide(0)
+      }, 120)
+    }
+
+    /** waits for the native scroll to settle before judging a small drag */
+    const glide = (samples: number) => {
+      const before = window.scrollY
+      window.setTimeout(() => {
+        if (animating) return
+        const moved = window.scrollY - touchStartScroll
+        if (Math.abs(moved) > 40) return decide(moved, 0)
+        if (samples < 8 && Math.abs(window.scrollY - before) > 1) return glide(samples + 1)
+        decide(moved, 0)
+      }, 90)
+    }
+
+    const decide = (verticalDelta: number, horizontalDelta: number) => {
+      measure()
+      const travelled = window.scrollY - touchStartScroll
+      const vertical =
+        Math.abs(verticalDelta) > Math.abs(horizontalDelta) && Math.abs(verticalDelta) >= 22
+      const anchor = vertical ? touchStartScroll : window.scrollY
+      if (!vertical) {
+        const near = stops.reduce((a, c) => (Math.abs(c - anchor) < Math.abs(a - anchor) ? c : a), stops[0])
+        if (Math.abs(near - anchor) > 12) animateTo(near)
+        return
+      }
+      const edge = reach()
+      const forward = verticalDelta !== 0 ? verticalDelta > 0 : travelled > 0
+      const target =
+        forward
+          ? stops.find((s) => s > anchor + edge) ?? stops[stops.length - 1]
+          : [...stops].reverse().find((s) => s < anchor - edge) ?? 0
+      if (Math.abs(target - window.scrollY) > 12) animateTo(target)
     }
 
     measure()
@@ -258,10 +294,12 @@ export function useScrollSnap() {
     window.addEventListener('orientationchange', measure)
     window.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('keydown', onKey)
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
     window.addEventListener('touchstart', onTouchStart, { passive: true })
     window.addEventListener('touchend', onTouchEnd, { passive: true })
     window.addEventListener('touchcancel', onTouchEnd, { passive: true })
     return () => {
+      document.documentElement.classList.remove('is-snapping')
       window.clearTimeout(settle)
       ro.disconnect()
       window.removeEventListener('load', measure)
@@ -270,6 +308,7 @@ export function useScrollSnap() {
       window.removeEventListener('orientationchange', measure)
       window.removeEventListener('wheel', onWheel)
       window.removeEventListener('keydown', onKey)
+      window.removeEventListener('touchmove', onTouchMove)
       window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchend', onTouchEnd)
       window.removeEventListener('touchcancel', onTouchEnd)

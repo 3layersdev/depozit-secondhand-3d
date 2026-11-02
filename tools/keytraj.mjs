@@ -1,0 +1,10 @@
+import puppeteer from 'puppeteer-core'
+const b=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',headless:'shell',args:['--no-sandbox','--disable-dev-shm-usage','--hide-scrollbars','--enable-unsafe-swiftshader']})
+const pg=await b.newPage(); await pg.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'no-preference'}])
+await pg.setViewport({width:390,height:844,isMobile:true,hasTouch:true})
+await pg.goto(process.argv[2]+'?dbg=1',{waitUntil:'domcontentloaded'}); await new Promise(r=>setTimeout(r,8000))
+await pg.evaluate(()=>{ window.__tr=[]; const t=performance.now(); const id=setInterval(()=>window.__tr.push([Math.round(performance.now()-t),Math.round(scrollY)]),100); setTimeout(()=>clearInterval(id),2600) })
+await pg.keyboard.press('ArrowDown')
+await new Promise(r=>setTimeout(r,2800))
+console.log(JSON.stringify({tr:await pg.evaluate(()=>window.__tr),log:await pg.evaluate(()=>window.__snapLog)}))
+await b.close()
