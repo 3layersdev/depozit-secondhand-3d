@@ -169,3 +169,192 @@ export function Chassis() {
     </group>
   )
 }
+
+/** cabina: profil extrudat (parbriz rabatat, plafon cu boltă), grilă, faruri,
+ *  oglinzi pe braț, trepte, ștergătoare și linia ușii */
+export function Cab({ position = [0, 0, -0.6] as [number, number, number] }) {
+  const paint = useSurface('steel', [2.4, 1.2])
+  const skin = useMemo(() => {
+    const s = new THREE.Shape()
+    s.moveTo(-1.0, 1.0)
+    s.lineTo(-0.99, 2.0)
+    s.lineTo(-0.72, 2.86) // parbriz rabatat
+    s.lineTo(0.48, 2.97) // plafon cu boltă
+    s.lineTo(0.9, 2.78)
+    s.lineTo(0.95, 1.0)
+    s.closePath()
+    return s
+  }, [])
+  const shell = useMemo(() => {
+    const g = new THREE.ExtrudeGeometry(skin, {
+      depth: 2.16,
+      bevelEnabled: true,
+      bevelSize: 0.05,
+      bevelThickness: 0.05,
+      bevelSegments: 2,
+      curveSegments: 4,
+    })
+    g.rotateY(-Math.PI / 2)
+    g.translate(1.08, 0, 0)
+    return g
+  }, [skin])
+
+  const glass = useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color: '#0e161b',
+        roughness: 0.06,
+        metalness: 0.2,
+        clearcoat: 1,
+        clearcoatRoughness: 0.04,
+        envMapIntensity: 1.7,
+      }),
+    [],
+  )
+  const chrome = useMemo(() => new THREE.MeshStandardMaterial({ color: '#b9bfc6', roughness: 0.28, metalness: 0.95 }), [])
+  const trim = useMemo(() => new THREE.MeshStandardMaterial({ color: '#23272b', roughness: 0.62, metalness: 0.3 }), [])
+  const lamp = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: '#fff8ea', emissive: '#ffe6bd', emissiveIntensity: 2.6, roughness: 0.2 }),
+    [],
+  )
+
+  return (
+    <group position={position} name="cab">
+      {/* corpul cabinei */}
+      <mesh geometry={shell} castShadow receiveShadow>
+        <meshStandardMaterial
+          map={paint.map}
+          normalMap={paint.normalMap}
+          roughnessMap={paint.roughnessMap}
+          color="#eceef1"
+          roughness={0.33}
+          metalness={0.34}
+          envMapIntensity={1.15}
+        />
+      </mesh>
+
+      {/* parbriz, pe planul rabatat */}
+      <mesh position={[0, 2.44, -0.86]} rotation={[Math.atan2(0.14, 1.2), 0, 0]} material={glass}>
+        <planeGeometry args={[2.02, 0.94]} />
+      </mesh>
+      {/* geamurile laterale + geamul din spate */}
+      {[-1, 1].map((s) => (
+        <group key={s}>
+          <mesh position={[s * 1.085, 2.36, -0.12]} rotation={[0, (s * Math.PI) / 2, 0]} material={glass}>
+            <planeGeometry args={[1.15, 0.78]} />
+          </mesh>
+          <mesh position={[s * 1.085, 2.36, 0.74]} rotation={[0, (s * Math.PI) / 2, 0]} material={glass}>
+            <planeGeometry args={[0.42, 0.7]} />
+          </mesh>
+        </group>
+      ))}
+      <mesh position={[0, 2.36, 0.85]} material={glass}>
+        <planeGeometry args={[1.5, 0.62]} />
+      </mesh>
+
+      {/* rama parbrizului + stergatoare */}
+      <mesh position={[0, 1.96, -1.0]} rotation={[Math.atan2(0.14, 1.2), 0, 0]} material={trim}>
+        <boxGeometry args={[2.1, 0.07, 0.06]} />
+      </mesh>
+      {[-0.5, 0.34].map((x, i) => (
+        <mesh key={i} position={[x, 2.0, -0.98]} rotation={[0.18, 0, i ? -0.32 : -0.18]} material={trim}>
+          <boxGeometry args={[0.78, 0.03, 0.03]} />
+        </mesh>
+      ))}
+
+      {/* grila frontala, cu lame orizontale */}
+      <mesh position={[0, 1.62, -1.03]} material={trim}>
+        <boxGeometry args={[1.94, 0.52, 0.08]} />
+      </mesh>
+      {[1.46, 1.58, 1.7, 1.82].map((y, i) => (
+        <mesh key={i} position={[0, y, -1.07]} material={chrome}>
+          <boxGeometry args={[1.82, 0.045, 0.05]} />
+        </mesh>
+      ))}
+      {/* emblema */}
+      <mesh position={[0, 1.66, -1.12]} material={chrome}>
+        <cylinderGeometry args={[0.11, 0.11, 0.04, 18, 1]} />
+      </mesh>
+
+      {/* faruri: carcasă, lentilă, semnalizare */}
+      {[-0.74, 0.74].map((x) => (
+        <group key={x}>
+          <mesh position={[x, 1.9, -1.04]} material={trim}>
+            <boxGeometry args={[0.6, 0.3, 0.1]} />
+          </mesh>
+          <mesh position={[x, 1.9, -1.1]} material={lamp}>
+            <boxGeometry args={[0.5, 0.2, 0.04]} />
+          </mesh>
+          <mesh position={[x, 1.72, -1.08]} material={lamp}>
+            <boxGeometry args={[0.44, 0.05, 0.03]} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* bara frontala cu placa si proiectoare */}
+      <mesh position={[0, 1.12, -1.06]} castShadow material={trim}>
+        <boxGeometry args={[2.2, 0.34, 0.2]} />
+      </mesh>
+      <mesh position={[0, 1.05, -1.17]} material={chrome}>
+        <boxGeometry args={[0.52, 0.13, 0.02]} />
+      </mesh>
+      {[-0.62, 0.62].map((x) => (
+        <mesh key={x} position={[x, 1.1, -1.17]} material={lamp}>
+          <cylinderGeometry args={[0.075, 0.075, 0.04, 14, 1]} />
+        </mesh>
+      ))}
+
+      {/* oglinzi pe brat, cu oglinda mare de unghi mort */}
+      {[-1, 1].map((s) => (
+        <group key={s}>
+          <mesh position={[s * 1.24, 2.5, -0.98]} rotation={[0, 0, Math.PI / 2]} material={trim}>
+            <cylinderGeometry args={[0.025, 0.025, 0.34, 8, 1]} />
+          </mesh>
+          <mesh position={[s * 1.42, 2.44, -0.96]} material={trim}>
+            <boxGeometry args={[0.08, 0.52, 0.2]} />
+          </mesh>
+          <mesh position={[s * 1.47, 2.44, -0.96]} material={chrome}>
+            <boxGeometry args={[0.02, 0.44, 0.14]} />
+          </mesh>
+          <mesh position={[s * 1.4, 2.1, -0.96]} material={trim}>
+            <boxGeometry args={[0.07, 0.18, 0.14]} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* linia usii, maner, trepte */}
+      {[-1, 1].map((s) => (
+        <group key={s}>
+          <mesh position={[s * 1.086, 1.85, 0.32]} rotation={[0, (s * Math.PI) / 2, 0]} material={trim}>
+            <boxGeometry args={[0.02, 1.62, 0.03]} />
+          </mesh>
+          <mesh position={[s * 1.1, 1.78, 0.1]} rotation={[0, (s * Math.PI) / 2, 0]} material={chrome}>
+            <boxGeometry args={[0.2, 0.05, 0.05]} />
+          </mesh>
+          <mesh position={[s * 0.9, 0.72, -0.42]} material={trim}>
+            <boxGeometry args={[0.5, 0.07, 0.26]} />
+          </mesh>
+          <mesh position={[s * 0.9, 0.98, -0.42]} material={trim}>
+            <boxGeometry args={[0.44, 0.06, 0.22]} />
+          </mesh>
+          {/* aparatoare de noroi in spatele rotii fata */}
+          <mesh position={[s * 1.12, 0.4, -0.28]} material={trim}>
+            <boxGeometry args={[0.06, 0.5, 0.34]} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* deflector de plafon, peste cabina */}
+      <mesh position={[0, 3.04, 0.34]} rotation={[-0.22, 0, 0]} castShadow>
+        <boxGeometry args={[2.2, 0.1, 0.9]} />
+        <meshStandardMaterial color="#e6e9ec" roughness={0.38} metalness={0.3} />
+      </mesh>
+      {/* lumini de gabarit pe plafon */}
+      {[-0.7, 0, 0.7].map((x) => (
+        <mesh key={x} position={[x, 2.99, -0.62]} material={lamp}>
+          <boxGeometry args={[0.12, 0.04, 0.06]} />
+        </mesh>
+      ))}
+    </group>
+  )
+}

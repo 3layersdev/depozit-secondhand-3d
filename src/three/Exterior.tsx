@@ -8,7 +8,7 @@ import {
 } from './textures'
 import { baleMaps } from './materials'
 import { useSurface } from './pbr'
-import { Wheel, Chassis } from './TruckKit'
+import { Wheel, Chassis, Cab } from './TruckKit'
 import { TruckDetails, WarehouseDetails, YardDetails } from './details'
 import { range, smoothstep, type ScrollRef } from './sequence'
 
@@ -546,6 +546,42 @@ export function Truck({
           />
         </mesh>
 
+        {/* ribs: the vertical stiffeners a real box body is built from */}
+        {Array.from({ length: 11 }, (_, i) => -3.3 + i * 0.66).map((z) => (
+          <group key={z}>
+            {[-1, 1].map((s) => (
+              <mesh key={s} position={[s * (bodyW / 2 + 0.025), 0, z]} castShadow>
+                <boxGeometry args={[0.05, 2.66, 0.055]} />
+                <meshStandardMaterial color="#d8dce1" roughness={0.5} metalness={0.4} />
+              </mesh>
+            ))}
+          </group>
+        ))}
+        {/* edge rails top and bottom, plus the roof cornice */}
+        {[-1, 1].map((s) => (
+          <group key={s}>
+            <mesh position={[s * (bodyW / 2 + 0.03), 1.38, 0]} castShadow>
+              <boxGeometry args={[0.11, 0.1, bodyL]} />
+              <meshStandardMaterial color="#b7bcc2" roughness={0.42} metalness={0.55} />
+            </mesh>
+            <mesh position={[s * (bodyW / 2 + 0.03), -1.36, 0]} castShadow>
+              <boxGeometry args={[0.09, 0.08, bodyL]} />
+              <meshStandardMaterial color="#8f959c" roughness={0.55} metalness={0.45} />
+            </mesh>
+          </group>
+        ))}
+        <mesh position={[0, 1.44, 0]} castShadow>
+          <boxGeometry args={[bodyW + 0.12, 0.07, bodyL + 0.06]} />
+          <meshStandardMaterial color="#c6cbd1" roughness={0.45} metalness={0.5} />
+        </mesh>
+        {/* roof bows seen from underneath, so the inside is not a bare box */}
+        {Array.from({ length: 8 }, (_, i) => -3.15 + i * 0.9).map((z) => (
+          <mesh key={z} position={[0, 1.32, z]}>
+            <boxGeometry args={[bodyW - 0.1, 0.06, 0.06]} />
+            <meshStandardMaterial color="#a9aeb4" roughness={0.6} metalness={0.4} />
+          </mesh>
+        ))}
+
         {/* livery on both sides */}
         {[-1, 1].map((s) => (
           <mesh
@@ -684,58 +720,8 @@ export function Truck({
         />
       </group>
 
-      {/* cab */}
-      <group position={[0, 0, -0.6]}>
-        <mesh position={[0, 2.05, -0.55]} castShadow>
-          <boxGeometry args={[2.42, 2.05, 1.9]} />
-          <meshStandardMaterial color="#e9ebee" roughness={0.34} metalness={0.35} />
-        </mesh>
-        {/* windshield + side windows */}
-        <mesh position={[0, 2.35, -1.52]} rotation={[0.08, 0, 0]}>
-          <planeGeometry args={[2.1, 0.92]} />
-          <meshPhysicalMaterial
-            color="#0d1418"
-            roughness={0.08}
-            metalness={0.2}
-            clearcoat={1}
-            envMapIntensity={1.6}
-          />
-        </mesh>
-        {[-1, 1].map((s) => (
-          <mesh key={s} position={[(s * 2.43) / 2, 2.3, -0.75]} rotation={[0, (s * Math.PI) / 2, 0]}>
-            <planeGeometry args={[1.3, 0.8]} />
-            <meshPhysicalMaterial color="#0d1418" roughness={0.1} metalness={0.25} clearcoat={1} />
-          </mesh>
-        ))}
-        {/* grille + bumper */}
-        <mesh position={[0, 1.28, -1.56]}>
-          <boxGeometry args={[2.36, 0.5, 0.22]} />
-          <meshStandardMaterial color="#2a2e33" roughness={0.6} metalness={0.5} />
-        </mesh>
-        <mesh position={[0, 0.92, -1.62]} castShadow>
-          <boxGeometry args={[2.42, 0.34, 0.3]} />
-          <meshStandardMaterial color="#1c1f23" roughness={0.75} />
-        </mesh>
-        {/* headlights */}
-        {[-0.86, 0.86].map((x) => (
-          <mesh key={x} position={[x, 1.5, -1.58]}>
-            <boxGeometry args={[0.44, 0.24, 0.1]} />
-            <meshStandardMaterial color="#fff6e2" emissive="#ffe9c2" emissiveIntensity={2.4} />
-          </mesh>
-        ))}
-        {/* mirrors */}
-        {[-1, 1].map((s) => (
-          <mesh key={s} position={[s * 1.35, 2.55, -1.42]}>
-            <boxGeometry args={[0.26, 0.4, 0.08]} />
-            <meshStandardMaterial color="#23272c" roughness={0.6} />
-          </mesh>
-        ))}
-        {/* cab roof deflector */}
-        <mesh position={[0, 3.16, -0.5]} castShadow>
-          <boxGeometry args={[2.3, 0.22, 1.7]} />
-          <meshStandardMaterial color="#e4e7ea" roughness={0.4} />
-        </mesh>
-      </group>
+      {/* cabina: profil extrudat, grila, faruri, oglinzi, trepte */}
+      <Cab />
 
       {/* wheels */}
       <group ref={wheels}>
