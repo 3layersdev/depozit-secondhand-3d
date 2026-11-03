@@ -2,7 +2,6 @@ import puppeteer from 'puppeteer-core'
 
 const base = process.argv[2] || 'http://127.0.0.1:4195/depozit-secondhand-3d/'
 const devices = [
-  ['360x640', 360, 640, true],
   ['1440x900', 1440, 900, false],
 ]
 

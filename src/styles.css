@@ -2622,3 +2622,72 @@ body {
     margin-top: 6px;
   }
 }
+
+/* ================================================================ */
+/* Fineţe: un singur strat de blur peste canvas, nu unul pe fiecare   */
+/* element. Fiecare backdrop-filter citeşte scena WebGL înapoi, deci  */
+/* cele imbricate costă dublu şi se simt exact la derulare.           */
+/* ================================================================ */
+.card,
+.contact,
+.panel--hero .reveal {
+  -webkit-backdrop-filter: blur(10px) saturate(138%);
+  backdrop-filter: blur(10px) saturate(138%);
+}
+
+/* elementele din interiorul cardului stau deja pe sticlă: fără blur dublu */
+.card .chip,
+.card .svc__tag,
+.card .thumb__tag,
+.card .grade,
+.card .fbblock,
+.card .step,
+.card .btn,
+.card .thumbs,
+.card .contact__row,
+.contact .btn,
+.contact .contact__row {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.header {
+  -webkit-backdrop-filter: blur(6px) saturate(118%);
+  backdrop-filter: blur(6px) saturate(118%);
+}
+
+/* tipografie: ritm mai aerisit la textele de lectură */
+.lede {
+  line-height: 1.58;
+}
+
+.svc__points {
+  line-height: 1.45;
+}
+
+.chapter__title {
+  letter-spacing: -0.015em;
+  line-height: 1.07;
+}
+
+.hero__text {
+  line-height: 1.58;
+}
+
+.eyebrow {
+  letter-spacing: 0.2em;
+}
+
+@media (max-width: 900px) {
+  .card,
+  .contact,
+  .panel--hero .reveal {
+    -webkit-backdrop-filter: blur(7px) saturate(132%);
+    backdrop-filter: blur(7px) saturate(132%);
+  }
+
+  .header {
+    -webkit-backdrop-filter: blur(5px) saturate(115%);
+    backdrop-filter: blur(5px) saturate(115%);
+  }
+}
