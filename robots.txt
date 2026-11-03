@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://3layersdev.github.io/depozit-secondhand-3d/sitemap.xml
