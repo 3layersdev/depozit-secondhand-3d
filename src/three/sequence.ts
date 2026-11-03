@@ -91,4 +91,5 @@ export const INT_TGT: Stop[] = [
   { p: 1.0, v: [0, 3.4, -52] },
 ]
 
-export const SCENE_CUT = 0.484
+import { SCENE_CUT } from '../lib/constants'
+export { SCENE_CUT }

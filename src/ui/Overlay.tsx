@@ -45,7 +45,10 @@ const RAIL = [
   { id: 'servicii', label: 'Servicii', at: 0.484 },
   { id: 'calitate', label: 'Calitate', at: 0.64 },
   { id: 'galerie', label: 'Galerie', at: 0.77 },
-  { id: 'contact', label: 'Contact', at: 0.9 },
+  { id: 'categorii', label: 'Produse', at: 0.88 },
+  { id: 'intrebari', label: 'Întrebări', at: 0.93 },
+  { id: 'oferta', label: 'Ofertă', at: 0.965 },
+  { id: 'contact', label: 'Contact', at: 0.99 },
 ]
 
 export function Rail({ progress }: { progress: number }) {
@@ -121,12 +124,14 @@ export function HeroSection() {
         </h1>
         <p className="hero__text">{hero.text}</p>
         <div className="actions">
-          <a className="btn btn--primary" href={brand.whatsapp} target="_blank" rel="noreferrer">
-            <WhatsAppIcon />
-            {brand.whatsappLabel}
+          <a className="btn btn--primary" href="#oferta">
+            Cere ofertă
           </a>
-          <a className="btn btn--ghost" href="#servicii">
-            Vezi serviciile
+          <a className="btn btn--ghost" href="#categorii">
+            Vezi ce vindem
+          </a>
+          <a className="btn btn--ghost" href={brand.phoneHref}>
+            Sună: {brand.phone}
           </a>
         </div>
         <div className="stats">
@@ -270,7 +275,7 @@ export function GallerySection({ onOpen }: { onOpen: (index: number) => void }) 
             aria-label={`Deschide ${g.title}`}
             style={{ backgroundImage: `url(${g.tiny})` }}
           >
-            <img src={g.src} alt={g.title} loading="lazy" />
+            <img src={g.src} alt={`${g.title} — ${g.meta}`} loading="lazy" decoding="async" width={560} height={420} />
             <span className="thumb__tag">{g.kind === 'reel' ? 'Clip' : 'Foto'}</span>
           </button>
         ))}
@@ -297,7 +302,7 @@ export function GallerySection({ onOpen }: { onOpen: (index: number) => void }) 
               onClick={() => onOpen(i)}
               aria-label={`Deschide ${g.title}`}
             >
-              <img src={g.src} alt={g.title} loading="lazy" />
+              <img src={g.src} alt={`${g.title} — ${g.meta}`} loading="lazy" decoding="async" width={560} height={420} />
             </button>
           ))}
         </div>
@@ -408,7 +413,7 @@ export function Lightbox({ index, onClose }: { index: number | null; onClose: ()
   return (
     <div className="lightbox" role="dialog" aria-modal="true" aria-label={item.title} onClick={onClose}>
       <figure className="lightbox__figure" onClick={(e) => e.stopPropagation()}>
-        <img className="lightbox__img" src={item.src} alt={item.title} />
+        <img className="lightbox__img" src={item.src} alt={`${item.title} — ${item.meta}`} decoding="async" />
         <div className="lightbox__bar">
           <div>
             <div className="lightbox__title">{item.title}</div>

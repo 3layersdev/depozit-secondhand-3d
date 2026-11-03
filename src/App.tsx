@@ -1,8 +1,6 @@
-import { Component, Suspense, useEffect, useState, type CSSProperties, type ReactNode } from 'react'
-import { Canvas } from '@react-three/fiber'
-import { useProgress } from '@react-three/drei'
-import { Experience } from './three/Experience'
-import { SCENE_CUT } from './three/sequence'
+import { Component, Suspense, lazy, useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+
+import { SCENE_CUT } from './lib/constants'
 import { useScrollProgress, useScrollSnap } from './lib/hooks'
 import { asset } from './lib/asset'
 import {
@@ -18,6 +16,10 @@ import {
   ServicesSection,
   TruckSection,
 } from './ui/Overlay'
+import { CategoriesSection, FaqSection, OfferSection } from './ui/Commerce'
+
+/** scena 3D e grea: o încărcăm separat, ca textul și CTA-urile să apară primele */
+const Stage = lazy(() => import('./ui/Stage'))
 
 /**
  * If the GPU/driver refuses a WebGL context after the feature check passed,
@@ -41,15 +43,12 @@ class StageBoundary extends Component<{ children: ReactNode; fallback: ReactNode
 }
 
 function Loader({ ready, disabled = false }: { ready: boolean; disabled?: boolean }) {
-  const { progress, active } = useProgress()
-  const [minTimePassed, setMinTimePassed] = useState(false)
+  const [pct, setPct] = useState(8)
   useEffect(() => {
-    const t = setTimeout(() => setMinTimePassed(true), 900)
-    return () => clearTimeout(t)
+    const id = setInterval(() => setPct((v) => (v < 96 ? v + 7 : v)), 120)
+    return () => clearInterval(id)
   }, [])
-
-  const done = disabled || (ready && !active && progress >= 100 && minTimePassed)
-  const pct = Math.round(Math.min(100, progress))
+  const done = disabled || ready
 
   return (
     <div className={`loader ${done ? 'is-hidden' : ''}`} aria-hidden={done}>
@@ -120,24 +119,18 @@ export default function App() {
             onFail={() => setGlFailed(true)}
             fallback={<div className="fallback__poster" role="img" aria-label="Depozit de haine second-hand" />}
           >
-          <Canvas
-            shadows="percentage"
-            dpr={[1, window.innerWidth < 900 ? 1.5 : 1.8]}
-            gl={{ antialias: true, powerPreference: 'high-performance' }}
-            camera={{ position: [27, 12, 54], fov: 48, near: 0.1, far: 420 }}
-            onCreated={({ gl }) => {
-              gl.toneMappingExposure = 1.05
-            }}
-          >
-            <Suspense fallback={null}>
-              <Experience progress={progressRef} />
-            </Suspense>
-          </Canvas>
+          <Suspense fallback={<div className="fallback__poster" role="img" aria-label="Depozit de haine second-hand" />}>
+            <Stage progress={progressRef} />
+          </Suspense>
           </StageBoundary>
         ) : (
           <div className="fallback__poster" role="img" aria-label="Depozit de haine second-hand" />
         )}
       </div>
+
+      <a className="skiplink" href="#categorii">
+        Sari la conținutul comercial
+      </a>
 
       <div className="veil" />
       <div className="flash" style={{ opacity: flash }} />
@@ -152,6 +145,9 @@ export default function App() {
         <ServicesSection />
         <QualitySection />
         <GallerySection onOpen={setLightbox} />
+        <CategoriesSection />
+        <FaqSection />
+        <OfferSection />
         <ContactSection />
         <Footer />
       </main>

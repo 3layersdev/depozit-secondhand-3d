@@ -2691,3 +2691,418 @@ body {
     backdrop-filter: blur(5px) saturate(115%);
   }
 }
+
+/* ================================================================ */
+/* Blocuri comerciale: categorii, formate, FAQ, formular de ofertă   */
+/* ================================================================ */
+.skiplink {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  translate: -50% -120%;
+  z-index: 90;
+  padding: 10px 16px;
+  border-radius: 0 0 12px 12px;
+  background: var(--accent, #c0652f);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  transition: translate 160ms ease;
+}
+
+.skiplink:focus-visible {
+  translate: -50% 0;
+}
+
+/* focusul trebuie să se vadă pe orice fundal */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent, #c0652f);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.catgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 6px 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.catgrid__item {
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  font-size: 12.5px;
+  line-height: 1.25;
+}
+
+.formats {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.formats__row {
+  display: grid;
+  grid-template-columns: minmax(112px, 32%) 1fr;
+  gap: 10px;
+  align-items: baseline;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.formats__title {
+  font-family: var(--display);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.formats__text {
+  font-size: 12.5px;
+  line-height: 1.45;
+  opacity: 0.82;
+}
+
+/* FAQ */
+.faq {
+  display: grid;
+  gap: 2px;
+  margin-top: 12px;
+}
+
+.faq__item {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+}
+
+.faq__q {
+  cursor: pointer;
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 600;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  min-height: 32px;
+}
+
+.faq__q::-webkit-details-marker {
+  display: none;
+}
+
+.faq__q::after {
+  content: '+';
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.faq__item[open] .faq__q::after {
+  content: '–';
+}
+
+.faq__a {
+  margin: 6px 0 2px;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.85;
+  max-width: 54ch;
+}
+
+/* formular */
+.offerform {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+  margin-top: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
+
+.field--wide {
+  grid-column: 1 / -1;
+}
+
+.field__label {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.field__opt {
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.75;
+}
+
+.field__input {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  font: inherit;
+  font-size: 13.5px;
+  color: inherit;
+  background: transparent;
+}
+
+.field__input--area {
+  min-height: 74px;
+  resize: vertical;
+}
+
+.field__error {
+  font-size: 11.5px;
+  color: #c0392b;
+}
+
+.offerform__submit {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.offerform__status {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  min-height: 1em;
+}
+
+.offerform__status a {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  #categorii .card,
+  #intrebari .card {
+    max-height: calc(64svh - env(safe-area-inset-bottom, 0px));
+  }
+
+  #oferta .card {
+    max-height: calc(76svh - env(safe-area-inset-bottom, 0px));
+  }
+
+  .catgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+    margin-top: 10px;
+  }
+
+  .catgrid__item {
+    font-size: 11.5px;
+    padding: 6px 8px;
+  }
+
+  .formats__row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .faq__q {
+    font-size: 13px;
+  }
+
+  .faq__a {
+    font-size: 12.5px;
+  }
+
+  .offerform {
+    gap: 8px 8px;
+  }
+
+  .field__input {
+    min-height: 44px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 900px) and (max-height: 730px) {
+  #categorii .card,
+  #intrebari .card,
+  #oferta .card {
+    max-height: calc(80svh - env(safe-area-inset-bottom, 0px));
+  }
+
+  .catgrid__item {
+    font-size: 10.5px;
+  }
+
+  .formats {
+    display: none;
+  }
+}
+
+/* culori formular — tema deschisă */
+.field__input {
+  background: #fffdf8;
+  border-color: rgba(52, 35, 15, 0.22);
+  color: #34230f;
+}
+
+.field__input::placeholder {
+  color: #7a6350;
+}
+
+.catgrid__item {
+  background: #fffdf8;
+  border-color: rgba(52, 35, 15, 0.18);
+  color: #34230f;
+}
+
+.field__error {
+  color: #a02b1c;
+}
+
+/* ---------------- comercial: carduri care încap pe telefon ---------- */
+@media (max-width: 900px) {
+  /* hero: trei butoane pe un rând, nu trei rânduri */
+  .hero__card .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+
+  .hero__card .actions .btn--primary {
+    grid-column: 1 / -1;
+  }
+
+  .hero__card .actions .btn {
+    padding: 10px 12px;
+    font-size: 12.5px;
+    justify-content: center;
+  }
+
+  .hero__card .h1 {
+    font-size: clamp(26px, 8.4vw, 40px);
+    line-height: 1.02;
+  }
+
+  .hero__card .hero__text {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* categorii: grilă mai densă, formate pe o singură linie fiecare */
+  .catgrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .catgrid__item {
+    font-size: 10.5px;
+    padding: 5px 7px;
+    text-align: center;
+  }
+
+  .formats {
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .formats__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 6px;
+    padding-top: 5px;
+  }
+
+  .formats__title {
+    font-size: 12px;
+  }
+
+  .formats__text {
+    font-size: 11.5px;
+    line-height: 1.35;
+    flex: 1 1 100%;
+  }
+
+  #categorii .card {
+    max-height: calc(66svh - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 400px) {
+  .catgrid__item {
+    font-size: 9.5px;
+    padding: 4px 5px;
+  }
+}
+
+@media (max-width: 900px) and (max-height: 730px) {
+  #intrebari .faq__item {
+    padding: 4px 0;
+  }
+
+  #intrebari .faq__q {
+    font-size: 12px;
+    min-height: 26px;
+  }
+
+  #intrebari .faq__a {
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+
+  #intrebari .card {
+    max-height: calc(86svh - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* FAQ: fără răspuns deschis implicit, cardul încape și lasă scena vizibilă */
+@media (max-width: 900px) {
+  #intrebari .card {
+    max-height: calc(68svh - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 900px) and (max-height: 730px) {
+  #intrebari .card {
+    max-height: calc(74svh - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* formularul de ofertă: încape integral pe desktop și pe ecrane scurte */
+@media (min-width: 901px) {
+  #oferta .card {
+    max-height: 80svh;
+  }
+}
+
+@media (max-width: 900px) and (max-height: 730px) {
+  #oferta .card {
+    max-height: calc(74svh - env(safe-area-inset-bottom, 0px));
+  }
+
+  #oferta .offerform {
+    gap: 6px;
+  }
+
+  #oferta .field__label {
+    font-size: 9.5px;
+  }
+
+  #oferta .field__input {
+    min-height: 40px;
+    padding: 7px 9px;
+    font-size: 13px;
+  }
+
+  #oferta .lede,
+  #oferta .fineprint {
+    font-size: 11.5px;
+  }
+}

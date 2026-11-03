@@ -12,8 +12,11 @@ export const BEATS: [number, number][] = [
   [0.32, 0.484], // door opens
   [0.484, 0.64], // services
   [0.64, 0.77], // quality
-  [0.77, 0.9], // gallery
-  [0.9, 1.0], // contact
+  [0.77, 0.88], // gallery
+  [0.88, 0.93], // categorii si formate
+  [0.93, 0.965], // intrebari frecvente
+  [0.965, 0.99], // formular de oferta
+  [0.99, 1.0], // contact
 ]
 
 export function useScrollProgress() {

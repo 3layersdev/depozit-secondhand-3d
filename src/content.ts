@@ -42,7 +42,7 @@ export const brand = {
 export const hero = {
   eyebrow: 'Import direct · exclusiv Anglia',
   title: ['Deschide', 'ușa', 'depozitului.'],
-  text: 'Haine second-hand originale din Anglia, vândute exclusiv la sac de 20–25 kg. Camionul e la rampă, marfa e sortată pe calități. Scroll: trecem pe lângă camion și ridicăm oblonul halei.',
+  text: 'Haine second-hand originale din Anglia, pentru magazine second-hand, vânzători online și distribuitori. Se vând la sac de 20–25 kg, sortate pe cinci calități. Prețul se comunică la cerere, cu pozele stocului disponibil.',
   stats: [
     { value: '3,5K', label: 'urmași pe Facebook' },
     { value: '20–25 kg', label: 'sacul standard' },
@@ -284,4 +284,65 @@ export const contact = {
   text: 'Trimite un mesaj cu ce te interesează. Îți răspundem cu disponibilitatea, prețul pe calitate și pozele sacilor din depozit.',
   cta: 'Cere oferta pe WhatsApp',
   secondary: 'Vezi pagina de Facebook',
+}
+
+
+/** Formatele comerciale reale: se vinde la sac, niciodată la balot. */
+export const formats = [
+  {
+    id: 'sac',
+    title: 'Sac de 20–25 kg',
+    text: 'Unitatea minimă de vânzare. Sac transparent, etichetat pe calitate și categorie.',
+  },
+  {
+    id: 'palet',
+    title: 'Palet de saci',
+    text: 'Cantități mai mari pentru magazine, pregătite pe palet, cu documentele aferente.',
+  },
+  {
+    id: 'transport',
+    title: 'Transport la cerere',
+    text: 'Livrare în toată țara și internațional, la cerere, până la adresa ta.',
+  },
+]
+
+/** Prețul nu se publică în site: se comunică la cerere, pe categorie și calitate. */
+export const priceNote =
+  'Prețul se comunică la cerere, în funcție de calitate și categorie. Nu publicăm prețuri fixe pentru că marfa se schimbă la fiecare transport.'
+
+export const faq = [
+  {
+    q: 'Care este cantitatea minimă?',
+    a: 'Un sac de 20–25 kg. Nu vindem la bucată și nici la balot nedeschis.',
+  },
+  {
+    q: 'Cât costă un sac?',
+    a: 'Prețul depinde de calitate (extra cremă, cremă, calitatea I, calitatea II, solduri) și de categorie. Îl comunicăm la cerere, cu pozele stocului disponibil în acel moment.',
+  },
+  {
+    q: 'Pot vedea marfa înainte să cumpăr?',
+    a: 'Da. Sacii sunt transparenți și pot fi deschiși în depozit, la vizionare. Vizionările se fac cu programare telefonică.',
+  },
+  {
+    q: 'De unde vine marfa?',
+    a: 'Exclusiv din Anglia, import direct pe palet, cu acte de proveniență. Suntem importator, nu intermediar.',
+  },
+  {
+    q: 'Ce documente primesc?',
+    a: 'Factură fiscală, acte de proveniență și certificat de dezinsectare și dezinfecție. Suntem neplătitor de TVA.',
+  },
+  {
+    q: 'Cum se face livrarea?',
+    a: 'Transport național și internațional la cerere. Aprovizionăm săptămânal parteneri din toată România.',
+  },
+  {
+    q: 'Pentru cine este marfa?',
+    a: 'Pentru magazine second-hand, lanțuri de magazine, vânzători online și distribuitori sau exportatori.',
+  },
+]
+
+export const offer = {
+  title: 'Cere o ofertă',
+  text: 'Completează ce te interesează. Cererea se trimite pe WhatsApp, cu datele tale deja completate; răspundem cu disponibilitatea și prețul.',
+  note: 'Nu avem comenzi online: cererea ajunge direct la depozit, pe WhatsApp sau email.',
 }
